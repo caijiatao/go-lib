@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync"
 	"testing"
 	"time"
 )
@@ -76,32 +75,4 @@ func slowOperate(ctx context.Context) error {
 
 func errOperate(ctx context.Context) error {
 	return errors.New("test err")
-}
-
-func TestAddErr(t *testing.T) {
-	errs := make([]error, 0)
-
-	var wg sync.WaitGroup
-
-	go func() {
-		// 模拟写的同时在读
-		for _, err := range errs {
-			if err == nil {
-				fmt.Println("err is nil")
-				continue
-			}
-			fmt.Println(err)
-		}
-	}()
-	for i := 0; i < 10000; i++ {
-		wg.Add(1)
-		go func(idx int) {
-			defer wg.Done()
-			errs[idx] = errors.New(fmt.Sprintf("%d", idx))
-		}(i)
-	}
-
-	wg.Wait()
-
-	fmt.Println("done")
 }

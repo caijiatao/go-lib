@@ -1,0 +1,3 @@
+test:
+	echo "run all test"
+	go test ./...

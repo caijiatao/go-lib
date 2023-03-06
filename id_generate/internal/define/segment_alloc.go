@@ -67,6 +67,10 @@ func (s *SegmentAlloc) IsNeedPreload() bool {
 	if s.IsPreloading {
 		return false
 	}
+	// 第二个缓冲区已经准备好 ，这里之前遗漏了该判断，会导致只要超过一半就开始去预加载
+	if len(s.SegmentBuffers) > 1 {
+		return false
+	}
 	segmentBuffer := s.SegmentBuffers[s.CurrentSegmentBufferIndex]
 	// 当前剩余的号已经小于步长的一半，则进行加载
 	restId := segmentBuffer.MaxCursor - segmentBuffer.Cursor

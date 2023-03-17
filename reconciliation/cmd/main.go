@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-mysql-org/go-mysql/canal"
 
-	"golib/reconciliation/binlog_handler"
+	"golib/reconciliation/service"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 	}
 
 	// Register a handler to handle RowsEvent
-	c.SetEventHandler(&binlog_handler.MysqlBinlogHandler{})
+	c.SetEventHandler(&service.MysqlBinlogHandler{})
 
 	// Start canal
 	err = c.Run()

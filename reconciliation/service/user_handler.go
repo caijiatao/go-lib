@@ -1,9 +1,7 @@
-package binlog_handler
+package service
 
 import (
 	"database/sql"
-
-	"github.com/siddontang/go-log/log"
 )
 
 type User struct {
@@ -49,29 +47,7 @@ func (u UserDataHandler) SyncBinLogData(action string, rows [][]interface{}, tab
 	var (
 		err error
 	)
-	users := u.parseUserRows(rows)
-	for _, user := range users {
-		switch action {
-		case "insert":
-			if u.isDataExists(user) {
-				err = u.updateData(user)
-			} else {
-				err = u.createData(user)
-			}
-		case "update":
-			if u.isDataExists(user) {
-				err = u.updateData(user)
-			}
-		case "delete":
-			if u.isDataExists(user) {
-				err = u.deleteData(user)
-			}
-		}
-		if err != nil {
-			log.Fatal(err)
-			return err
-		}
-	}
+
 	return nil
 }
 

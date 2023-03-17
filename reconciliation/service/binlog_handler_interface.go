@@ -1,4 +1,4 @@
-package binlog_handler
+package service
 
 func (h *MysqlBinlogHandler) String() string {
 	return "MysqlBinlogHandler"

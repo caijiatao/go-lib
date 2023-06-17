@@ -1,4 +1,4 @@
-package gorm_helper
+package orm
 
 import "gorm.io/gorm"
 

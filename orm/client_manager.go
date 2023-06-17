@@ -1,4 +1,4 @@
-package gorm_helper
+package orm
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	globalDBManager         *dbManager
+	globalDBManager         *ormManger
 	globalDBManagerInitOnce sync.Once
 )
 
@@ -16,23 +16,23 @@ var (
 	clientNameExists = errors.New("client name exists")
 )
 
-type dbManager struct {
+type ormManger struct {
 	allClients sync.Map
 }
 
-func (m *dbManager) get(dbClientName string) *DB {
+func (m *ormManger) get(dbClientName string) Client {
 	db, ok := m.allClients.Load(dbClientName)
 	if !ok {
 		return nil
 	}
-	return db.(*DB)
+	return db.(Client)
 }
 
-func (m *dbManager) add(dbClientName string, db *DB) error {
-	_, ok := m.allClients.Load(dbClientName)
+func (m *ormManger) add(clientName string, client Client) error {
+	_, ok := m.allClients.Load(clientName)
 	if ok {
 		return clientNameExists
 	}
-	m.allClients.Store(dbClientName, db)
+	m.allClients.Store(clientName, client)
 	return nil
 }

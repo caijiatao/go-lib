@@ -35,13 +35,15 @@ type Client interface {
 	Scan(dest interface{}) Client
 	Pluck(column string, dest interface{}) Client
 	ScanRows(rows *sql.Rows, dest interface{}) error
-	Transaction(fc func(Client) error, opts ...*sql.TxOptions) (err error)
 	Begin(opts ...*sql.TxOptions) Client
 	Commit() Client
 	Rollback() Client
 	SavePoint(name string) Client
 	RollbackTo(name string) Client
 	Exec(sql string, values ...interface{}) Client
+	Model(value interface{}) Client
+	Where(query interface{}, args ...interface{}) Client
+	Table(name string, args ...interface{}) Client
 }
 
 func NewOrmClient(config Config) (err error) {

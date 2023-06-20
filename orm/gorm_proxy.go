@@ -13,6 +13,35 @@ type GormClientProxy struct {
 	db             *gorm.DB
 }
 
+func NewGormClientProxy(config Config) (Client, error) {
+	db, err := gorm.Open(config.Dial, config.Config)
+	if err != nil {
+		return nil, err
+	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	if len(config.DBClientName) == 0 {
+		config.DBClientName = defaultDBClientName
+	}
+
+	client := &GormClientProxy{
+		db: db,
+	}
+
+	metaDriverOperatorConstructor, ok := driverMetaConstructorMap[db.Dialector.Name()]
+	if ok {
+		client.driverOperator = metaDriverOperatorConstructor(db)
+	}
+
+	return client, nil
+}
+
 func (clientProxy *GormClientProxy) Create(value interface{}) Client {
 	c := clientProxy.clone()
 	c.db = clientProxy.db.Create(value)
@@ -127,11 +156,6 @@ func (clientProxy *GormClientProxy) ScanRows(rows *sql.Rows, dest interface{}) e
 	return clientProxy.db.ScanRows(rows, dest)
 }
 
-func (clientProxy *GormClientProxy) Transaction(fc func(Client) error, opts ...*sql.TxOptions) (err error) {
-	// TODO
-	return nil
-}
-
 func (clientProxy *GormClientProxy) Begin(opts ...*sql.TxOptions) Client {
 	c := clientProxy.clone()
 	c.db = c.db.Begin(opts...)
@@ -175,35 +199,6 @@ func (clientProxy *GormClientProxy) GetDBMetas() ([]ITableMeta, error) {
 	return clientProxy.driverOperator.GetDBMetas()
 }
 
-func NewGormClientProxy(config Config) (Client, error) {
-	db, err := gorm.Open(config.Dial, config.Config)
-	if err != nil {
-		return nil, err
-	}
-	sqlDB, err := db.DB()
-	if err != nil {
-		return nil, err
-	}
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(time.Hour)
-
-	if len(config.DBClientName) == 0 {
-		config.DBClientName = defaultDBClientName
-	}
-
-	client := &GormClientProxy{
-		db: db,
-	}
-
-	metaDriverOperatorConstructor, ok := driverMetaConstructorMap[db.Dialector.Name()]
-	if ok {
-		client.driverOperator = metaDriverOperatorConstructor(db)
-	}
-
-	return client, nil
-}
-
 func (clientProxy *GormClientProxy) clone() *GormClientProxy {
 	return &GormClientProxy{
 		driverOperator: clientProxy.driverOperator,
@@ -222,4 +217,22 @@ func (clientProxy *GormClientProxy) Check() (ok bool) {
 		return false
 	}
 	return true
+}
+
+func (clientProxy *GormClientProxy) Model(value interface{}) Client {
+	c := clientProxy.clone()
+	c.db = clientProxy.db.Model(value)
+	return c
+}
+
+func (clientProxy *GormClientProxy) Where(query interface{}, args ...interface{}) Client {
+	c := clientProxy.clone()
+	c.db = c.db.Where(query, args...)
+	return c
+}
+
+func (clientProxy *GormClientProxy) Table(name string, args ...interface{}) Client {
+	c := clientProxy.clone()
+	c.db = c.db.Table(name, args...)
+	return c
 }

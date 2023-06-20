@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	globalDBManager         *ormManger
-	globalDBManagerInitOnce sync.Once
+	globalClientManager         *clientManager
+	globalClientManagerInitOnce sync.Once
 )
 
 const defaultDBClientName = "default"
@@ -16,23 +16,23 @@ var (
 	clientNameExists = errors.New("client name exists")
 )
 
-type ormManger struct {
+type clientManager struct {
 	allClients sync.Map
 }
 
-func (m *ormManger) get(dbClientName string) Client {
+func (m *clientManager) get(dbClientName string) Client {
 	db, ok := m.allClients.Load(dbClientName)
 	if !ok {
 		return nil
 	}
-	return db.(Client)
+	return db.(*GormClientProxy)
 }
 
-func (m *ormManger) add(clientName string, client Client) error {
-	_, ok := m.allClients.Load(clientName)
+func (m *clientManager) add(dbClientName string, db Client) error {
+	_, ok := m.allClients.Load(dbClientName)
 	if ok {
 		return clientNameExists
 	}
-	m.allClients.Store(clientName, client)
+	m.allClients.Store(dbClientName, db)
 	return nil
 }

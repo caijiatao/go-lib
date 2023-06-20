@@ -1,7 +1,11 @@
 package orm
 
-type Schema interface {
+// ITableMeta
+// @Description: 表的元信息
+type ITableMeta interface {
 }
 
-type schema struct {
+// IColumnMeta
+// @Description: 列的元信息
+type IColumnMeta interface {
 }

@@ -34,6 +34,10 @@ func Error(v ...any) {
 	getDefaultLogger().Error(v...)
 }
 
+func CtxErrorf(ctx context.Context, format string, args ...interface{}) {
+
+}
+
 func Info(v ...any) {
 	getDefaultLogger().Info(v...)
 }

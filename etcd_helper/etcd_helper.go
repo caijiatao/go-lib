@@ -1,9 +1,9 @@
 package etcd_helper
 
 import (
-	"airec_server/pkg/logger"
 	"context"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"golib/logger"
 )
 
 type etcdContextKeyType string
@@ -15,7 +15,7 @@ const (
 const defaultClientName = "default"
 
 type EtcdClient struct {
-	*clientv3.Client
+	Client *clientv3.Client
 	Config
 }
 
@@ -38,13 +38,13 @@ func Context(ctx context.Context) *EtcdClient {
 	return m.get(defaultClientName)
 }
 
-func InitETCDClient(config Config) (err error) {
+func NewClient(config Config) (*EtcdClient, error) {
 	globalManagerInitOnce.Do(func() {
 		globalManager = &etcdManager{}
 	})
 	cli, err := clientv3.New(config.Config)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	client := newEtcdClient(cli, config)
 
@@ -53,9 +53,9 @@ func InitETCDClient(config Config) (err error) {
 	}
 	err = globalManager.add(config.ClientName, client)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return client, nil
 }
 
 func Close() {
@@ -63,7 +63,7 @@ func Close() {
 }
 
 func Put(ctx context.Context, key, val string, opts ...clientv3.OpOption) (*clientv3.PutResponse, error) {
-	resp, err := Context(ctx).Put(ctx, key, val, opts...)
+	resp, err := Context(ctx).Client.Put(ctx, key, val, opts...)
 	if err != nil {
 		logger.Error(err)
 		return resp, err
@@ -72,5 +72,5 @@ func Put(ctx context.Context, key, val string, opts ...clientv3.OpOption) (*clie
 }
 
 func Watch(ctx context.Context, key string, opts ...clientv3.OpOption) clientv3.WatchChan {
-	return Context(ctx).Watch(ctx, key, opts...)
+	return Context(ctx).Client.Watch(ctx, key, opts...)
 }

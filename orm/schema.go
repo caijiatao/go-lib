@@ -9,3 +9,13 @@ type ITableMeta interface {
 // @Description: 列的元信息
 type IColumnMeta interface {
 }
+
+type gormTableMeta struct {
+	name    string
+	columns []IColumnMeta
+}
+
+type gormColumnMeta struct {
+	Field string `gorm:"column:Field"`
+	Type  string `gorm:"column:Type"`
+}

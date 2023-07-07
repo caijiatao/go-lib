@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"gorm.io/gorm"
-	"time"
 )
 
 type contextKeyType string
@@ -12,9 +11,10 @@ type contextKeyType string
 const dbContextKey contextKeyType = "default"
 
 // Client
-// @Description: ORM client 接口
+// @Description: ORM client 接口 ，底层可以替换实现
 type Client interface {
 	DriverMetaOperator
+	AdvanceQuery
 	Create(value interface{}) Client
 	CreateInBatches(value interface{}, batchSize int) Client
 	Save(value interface{}) Client
@@ -43,33 +43,40 @@ type Client interface {
 	Exec(sql string, values ...interface{}) Client
 	Model(value interface{}) Client
 	Where(query interface{}, args ...interface{}) Client
+	Limit(limit int) Client
+	Offset(offset int) Client
+	Order(value interface{}) Client
 	Table(name string, args ...interface{}) Client
+	Raw(sql string, values ...interface{}) Client
+	Error() error
+	RowsAffected() int64
+	Select(query interface{}, args ...interface{}) Client
+	DB() *gorm.DB
+	Transaction(fc func(tx Client) error, opts ...*sql.TxOptions) error
 }
 
-func NewOrmClient(config Config) (err error) {
-	globalClientManagerInitOnce.Do(func() {
-		globalClientManager = &clientManager{}
-	})
-
-	db, err := gorm.Open(config.Dial, config.Config)
-	if err != nil {
-		return err
+func Init() error {
+	configs := readConfigs()
+	for _, config := range configs {
+		err := NewOrmClient(config)
+		if err != nil {
+			return err
+		}
 	}
-	sqlDB, err := db.DB()
-	if err != nil {
-		return err
-	}
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	return nil
+}
 
+func NewOrmClient(config *Config) (err error) {
 	if len(config.DBClientName) == 0 {
 		config.DBClientName = defaultDBClientName
 	}
 
-	err = globalClientManager.add(config.DBClientName, &GormClientProxy{
-		db: db,
-	})
+	client, err := NewGormClientProxy(*config)
+	if err != nil {
+		return err
+	}
+
+	err = globalClientManager.add(config.DBClientName, client)
 	if err != nil {
 		return err
 	}

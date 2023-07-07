@@ -6,8 +6,7 @@ import (
 )
 
 var (
-	globalClientManager         *clientManager
-	globalClientManagerInitOnce sync.Once
+	globalClientManager = &clientManager{}
 )
 
 const defaultDBClientName = "default"

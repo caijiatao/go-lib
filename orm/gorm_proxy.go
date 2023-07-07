@@ -9,8 +9,24 @@ import (
 
 type GormClientProxy struct {
 	driverOperator DriverMetaOperator
-	client         Client
-	db             *gorm.DB
+
+	advanceQuery AdvanceQuery
+	client       Client
+	db           *gorm.DB
+}
+
+func (clientProxy *GormClientProxy) CreateTableByMeta(tableMeta TableMeta) (err error) {
+	return clientProxy.driverOperator.CreateTableByMeta(tableMeta)
+}
+
+func (clientProxy *GormClientProxy) JoinQueryTablesByCursor(joinQueryParams []JoinQueryParam, batchSize int, fc func(data []map[string]interface{})) error {
+	c := clientProxy.clone()
+	return c.advanceQuery.JoinQueryTablesByCursor(joinQueryParams, batchSize, fc)
+}
+
+func (clientProxy *GormClientProxy) QueryByCursor(tableName string, batchSize int, selectFields []string, orderBy []string, fc func(data []map[string]interface{})) error {
+	c := clientProxy.clone()
+	return c.advanceQuery.QueryByCursor(tableName, batchSize, selectFields, orderBy, fc)
 }
 
 func NewGormClientProxy(config Config) (Client, error) {
@@ -22,8 +38,8 @@ func NewGormClientProxy(config Config) (Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetMaxIdleConns(config.MaxIdle)
+	sqlDB.SetMaxOpenConns(config.MaxOpen)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	if len(config.DBClientName) == 0 {
@@ -39,96 +55,101 @@ func NewGormClientProxy(config Config) (Client, error) {
 		client.driverOperator = metaDriverOperatorConstructor(db)
 	}
 
+	advanceQueryConstructor, ok := advanceQueryConstructorMap[db.Dialector.Name()]
+	if ok {
+		client.advanceQuery = advanceQueryConstructor(db)
+	}
+
 	return client, nil
 }
 
 func (clientProxy *GormClientProxy) Create(value interface{}) Client {
 	c := clientProxy.clone()
-	c.db = clientProxy.db.Create(value)
+	c.setDB(clientProxy.db.Create(value))
 	return c
 }
 
 func (clientProxy *GormClientProxy) CreateInBatches(value interface{}, batchSize int) Client {
 	c := clientProxy.clone()
-	c.db = c.db.CreateInBatches(value, batchSize)
+	c.setDB(c.db.CreateInBatches(value, batchSize))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Save(value interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Save(value)
+	c.setDB(c.db.Save(value))
 	return c
 }
 
 func (clientProxy *GormClientProxy) First(dest interface{}, conds ...interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.First(dest, conds...)
+	c.setDB(c.db.First(dest, conds...))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Take(dest interface{}, conds ...interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Take(dest, conds...)
+	c.setDB(c.db.Take(dest, conds...))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Last(dest interface{}, conds ...interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Last(dest, conds...)
+	c.setDB(c.db.Last(dest, conds...))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Find(dest interface{}, conds ...interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Find(dest, conds...)
+	c.setDB(c.db.Find(dest, conds...))
 	return c
 }
 
 func (clientProxy *GormClientProxy) FirstOrInit(dest interface{}, conds ...interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.FirstOrInit(dest, conds...)
+	c.setDB(c.db.FirstOrInit(dest, conds...))
 	return c
 }
 
 func (clientProxy *GormClientProxy) FirstOrCreate(dest interface{}, conds ...interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.FirstOrCreate(dest, conds...)
+	c.setDB(c.db.FirstOrCreate(dest, conds...))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Update(column string, value interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Update(column, value)
+	c.setDB(c.db.Update(column, value))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Updates(values interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Updates(values)
+	c.setDB(c.db.Updates(values))
 	return c
 }
 
 func (clientProxy *GormClientProxy) UpdateColumn(column string, value interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.UpdateColumn(column, value)
+	c.setDB(c.db.UpdateColumn(column, value))
 	return c
 }
 
 func (clientProxy *GormClientProxy) UpdateColumns(values interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.UpdateColumns(values)
+	c.setDB(c.db.UpdateColumns(values))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Delete(value interface{}, conds ...interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Delete(value, conds...)
+	c.setDB(c.db.Delete(value, conds...))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Count(count *int64) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Count(count)
+	c.setDB(c.db.Count(count))
 	return c
 }
 
@@ -142,13 +163,13 @@ func (clientProxy *GormClientProxy) Rows() (*sql.Rows, error) {
 
 func (clientProxy *GormClientProxy) Scan(dest interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Scan(dest)
+	c.setDB(c.db.Scan(dest))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Pluck(column string, dest interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Pluck(column, dest)
+	c.setDB(c.db.Pluck(column, dest))
 	return c
 }
 
@@ -158,37 +179,37 @@ func (clientProxy *GormClientProxy) ScanRows(rows *sql.Rows, dest interface{}) e
 
 func (clientProxy *GormClientProxy) Begin(opts ...*sql.TxOptions) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Begin(opts...)
+	c.setDB(c.db.Begin(opts...))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Commit() Client {
 	c := clientProxy.clone()
-	c.db = c.db.Commit()
+	c.setDB(c.db.Commit())
 	return c
 }
 
 func (clientProxy *GormClientProxy) Rollback() Client {
 	c := clientProxy.clone()
-	c.db = c.db.Rollback()
+	c.setDB(c.db.Rollback())
 	return c
 }
 
 func (clientProxy *GormClientProxy) SavePoint(name string) Client {
 	c := clientProxy.clone()
-	c.db = c.db.SavePoint(name)
+	c.setDB(c.db.SavePoint(name))
 	return c
 }
 
 func (clientProxy *GormClientProxy) RollbackTo(name string) Client {
 	c := clientProxy.clone()
-	c.db = c.db.RollbackTo(name)
+	c.setDB(c.db.RollbackTo(name))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Exec(sql string, values ...interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Exec(sql, values...)
+	c.setDB(c.db.Exec(sql, values...))
 	return c
 }
 
@@ -202,9 +223,16 @@ func (clientProxy *GormClientProxy) GetDBMetas() ([]ITableMeta, error) {
 func (clientProxy *GormClientProxy) clone() *GormClientProxy {
 	return &GormClientProxy{
 		driverOperator: clientProxy.driverOperator,
+		advanceQuery:   clientProxy.advanceQuery,
 		client:         clientProxy.client,
 		db:             clientProxy.db,
 	}
+}
+
+func (clientProxy *GormClientProxy) setDB(db *gorm.DB) {
+	clientProxy.db = db
+	clientProxy.driverOperator.setDB(db)
+	clientProxy.advanceQuery.setDB(db)
 }
 
 func (clientProxy *GormClientProxy) Check() (ok bool) {
@@ -221,18 +249,73 @@ func (clientProxy *GormClientProxy) Check() (ok bool) {
 
 func (clientProxy *GormClientProxy) Model(value interface{}) Client {
 	c := clientProxy.clone()
-	c.db = clientProxy.db.Model(value)
+	c.setDB(clientProxy.db.Model(value))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Where(query interface{}, args ...interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Where(query, args...)
+	c.setDB(c.db.Where(query, args...))
+	return c
+}
+
+func (clientProxy *GormClientProxy) Limit(limit int) Client {
+	c := clientProxy.clone()
+	c.setDB(c.db.Limit(limit))
+	return c
+}
+
+func (clientProxy *GormClientProxy) Offset(offset int) Client {
+	c := clientProxy.clone()
+	c.setDB(c.db.Offset(offset))
+	return c
+}
+
+func (clientProxy *GormClientProxy) Order(value interface{}) Client {
+	c := clientProxy.clone()
+	c.setDB(c.db.Order(value))
 	return c
 }
 
 func (clientProxy *GormClientProxy) Table(name string, args ...interface{}) Client {
 	c := clientProxy.clone()
-	c.db = c.db.Table(name, args...)
+	c.setDB(c.db.Table(name, args...))
 	return c
+}
+
+func (clientProxy *GormClientProxy) GetPrimaryKey(tableName string) (string, error) {
+	return clientProxy.driverOperator.GetPrimaryKey(tableName)
+}
+
+func (clientProxy *GormClientProxy) Raw(sql string, values ...interface{}) Client {
+	c := clientProxy.clone()
+	c.setDB(c.db.Raw(sql, values...))
+	return c
+}
+
+func (clientProxy *GormClientProxy) Error() error {
+	return clientProxy.db.Error
+}
+
+func (clientProxy *GormClientProxy) RowsAffected() int64 {
+	return clientProxy.db.RowsAffected
+}
+
+func (clientProxy *GormClientProxy) Select(query interface{}, args ...interface{}) Client {
+	c := clientProxy.clone()
+	c.setDB(c.db.Select(query, args))
+	return c
+}
+
+func (clientProxy *GormClientProxy) DB() *gorm.DB {
+	return clientProxy.db
+}
+
+func (clientProxy *GormClientProxy) Transaction(fc func(tx Client) error, opts ...*sql.TxOptions) error {
+	var c Client = clientProxy.clone()
+	return c.DB().Transaction(func(tx *gorm.DB) error {
+		c.setDB(tx)
+		err := fc(c)
+		return err
+	}, opts...)
 }

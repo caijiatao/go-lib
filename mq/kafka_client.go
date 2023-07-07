@@ -1,26 +1,31 @@
 package mq
 
 import (
+	"airec_server/pkg/logger"
 	"context"
 	"encoding/json"
 	"github.com/Shopify/sarama"
 )
 
-type kafkaClient struct {
+type KafkaClient struct {
+	config *Config
 	client sarama.Client
 }
 
-func (k *kafkaClient) Name() string {
-	//TODO implement me
-	panic("implement me")
+func (k *KafkaClient) Name() string {
+	return k.config.ClientName
 }
 
-func (k *kafkaClient) Close() error {
-	//TODO implement me
-	panic("implement me")
+func (k *KafkaClient) Close() error {
+	err := k.client.Close()
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+	return nil
 }
 
-func (k *kafkaClient) SyncSendMessage(ctx context.Context, params interface{}) error {
+func (k *KafkaClient) SyncSendMessage(ctx context.Context, message *Message) error {
 	syncProducer, err := sarama.NewSyncProducerFromClient(k.client)
 	if err != nil {
 		return err
@@ -28,24 +33,31 @@ func (k *kafkaClient) SyncSendMessage(ctx context.Context, params interface{}) e
 	defer func() {
 		_ = syncProducer.Close()
 	}()
-	ps, err := json.Marshal(params)
+	ps, err := json.Marshal(message.Content)
 	if err != nil {
 		return err
 	}
-	msg := &sarama.ProducerMessage{Topic: "test", Partition: 6, Value: sarama.StringEncoder(ps)}
-	_, _, err = syncProducer.SendMessage(msg)
+	msg := &sarama.ProducerMessage{Topic: message.Topic, Partition: message.Partition, Value: sarama.StringEncoder(ps)}
+	for i := 0; i < k.config.RetryCount; i++ {
+		_, _, err = syncProducer.SendMessage(msg)
+		if err != nil {
+			logger.Error(err)
+			continue
+		}
+	}
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func newKafkaClient(config *Config) (*kafkaClient, error) {
+func NewKafkaClient(config *Config) (*KafkaClient, error) {
 	c, err := sarama.NewClient(config.Addr, config.SaramaConfig)
 	if err != nil {
 		return nil, err
 	}
-	client := &kafkaClient{
+	client := &KafkaClient{
+		config: config,
 		client: c,
 	}
 	return client, nil

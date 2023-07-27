@@ -10,7 +10,6 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.3
-	github.com/yuin/gopher-lua v1.1.0
 	go.etcd.io/etcd/client/v3 v3.5.9
 	golang.org/x/net v0.10.0
 	gorm.io/driver/postgres v1.5.2

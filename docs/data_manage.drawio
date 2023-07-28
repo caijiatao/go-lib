@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2023-07-04T06:16:46.959Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.4.0 Chrome/112.0.5615.204 Electron/24.5.1 Safari/537.36" etag="rlCU5M4pcNrjR7k-FwTw" version="21.4.0" type="device" pages="17">
+<mxfile host="Electron" modified="2023-07-28T07:38:04.284Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.4.0 Chrome/112.0.5615.204 Electron/24.5.1 Safari/537.36" etag="MyLkc5SVXOJ2F2tqfWDB" version="21.4.0" type="device" pages="17">
   <diagram name="云部署系统架构" id="6Pyqc5dQGxIDJLktqAh5">
     <mxGraphModel dx="2375" dy="2071" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -1274,7 +1274,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="6tkKVmc2f3AjlbdsEs4k" name="orm-design">
-    <mxGraphModel dx="1548" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1629" dy="949" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -1348,7 +1348,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="OpFcyhrEbMu7BVyr5VLT" name="全局协程管理">
-    <mxGraphModel dx="3923" dy="1804" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3038" dy="1289" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -2671,11 +2671,14 @@
       </root>
     </mxGraphModel>
   </diagram>
-  <diagram id="L-qMrnmCYf5DwJlF3FVO" name="第 17 页">
+  <diagram id="L-qMrnmCYf5DwJlF3FVO" name="PushServer">
     <mxGraphModel dx="1548" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="yvYJJUlXskGWMfA9ByEY-1" value="连接管理" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="480" width="120" height="60" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

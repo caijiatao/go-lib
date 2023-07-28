@@ -38,16 +38,33 @@ func (p *postgreQuery) getTableName(rawTableName string) string {
 	return splitTable[len(splitTable)-1]
 }
 
+func (p *postgreQuery) wrapQuotesTableName(tableName string) string {
+	splitTable := strings.Split(tableName, ".")
+	tableNames := make([]string, 0)
+	for _, s := range splitTable {
+		firstChar := s[0]
+		lastChar := s[len(s)-1]
+
+		if firstChar == '"' && lastChar == '"' {
+			tableNames = append(tableNames, s)
+		} else {
+			tableNames = append(tableNames, fmt.Sprintf(`"%s"`, s))
+		}
+	}
+	return strings.Join(tableNames, ".")
+}
+
 func (p *postgreQuery) QueryByCursor(tableName string, batchSize int, selectFields []string, orderBy []string, fc func(data []map[string]interface{})) error {
 	splitTableName := p.getTableName(tableName)
 	cursorName := fmt.Sprintf("%s_cursor", splitTableName)
+	tableName = p.wrapQuotesTableName(tableName)
 	p.db = p.db.Begin()
 	defer func() {
 		closeCursor := fmt.Sprintf("CLOSE %s", cursorName)
 		p.db = p.db.Exec(closeCursor)
 		p.db = p.db.Commit()
 	}()
-	selectFieldStr := ""
+	selectFieldStr := "*"
 	if len(selectFields) > 0 {
 		selectFieldStr = strings.Join(selectFields, ",")
 	}

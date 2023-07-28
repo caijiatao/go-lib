@@ -9,6 +9,7 @@ import (
 type contextKeyType string
 
 const dbContextKey contextKeyType = "default"
+const SourceDBClientNamePrefix = "source: "
 
 // Client
 // @Description: ORM client 接口 ，底层可以替换实现
@@ -48,6 +49,8 @@ type Client interface {
 	Order(value interface{}) Client
 	Table(name string, args ...interface{}) Client
 	Raw(sql string, values ...interface{}) Client
+	Joins(sql string, args ...interface{}) Client
+	Preload(sql string, args ...interface{}) Client
 	Error() error
 	RowsAffected() int64
 	Select(query interface{}, args ...interface{}) Client
@@ -102,6 +105,9 @@ func ContextByClientName(ctx context.Context, clientName string) Client {
 }
 
 func GetClientByClientName(clientName string) Client {
+	if clientName == "" {
+		return globalClientManager.get(defaultDBClientName)
+	}
 	return globalClientManager.get(clientName)
 }
 

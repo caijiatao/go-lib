@@ -15,6 +15,55 @@ type GormClientProxy struct {
 	db           *gorm.DB
 }
 
+func (clientProxy *GormClientProxy) GetSchemaNames() ([]string, error) {
+	if clientProxy.driverOperator == nil {
+		return nil, errors.New("driver not support get db metas")
+	}
+	return clientProxy.driverOperator.GetSchemaNames()
+}
+
+func (clientProxy *GormClientProxy) GetSchemas() ([]SchemaMeta, error) {
+	if clientProxy.driverOperator == nil {
+		return nil, errors.New("driver not support get db metas")
+	}
+	return clientProxy.driverOperator.GetSchemas()
+}
+
+func (clientProxy *GormClientProxy) GetTableNames(schemaName string) ([]string, error) {
+	if clientProxy.driverOperator == nil {
+		return nil, errors.New("driver not support get db metas")
+	}
+	return clientProxy.driverOperator.GetTableNames(schemaName)
+}
+
+func (clientProxy *GormClientProxy) GetTables(schemaName string) ([]TableMeta, error) {
+	if clientProxy.driverOperator == nil {
+		return nil, errors.New("driver not support get db metas")
+	}
+	return clientProxy.driverOperator.GetTables(schemaName)
+}
+
+func (clientProxy *GormClientProxy) GetColumnNames(tableName, schemaName string) ([]string, error) {
+	if clientProxy.driverOperator == nil {
+		return nil, errors.New("driver not support get db metas")
+	}
+	return clientProxy.driverOperator.GetColumnNames(tableName, schemaName)
+}
+
+func (clientProxy *GormClientProxy) GetColumns(tableName, schemaName string) ([]ColumnMeta, error) {
+	if clientProxy.driverOperator == nil {
+		return nil, errors.New("driver not support get db metas")
+	}
+	return clientProxy.driverOperator.GetColumns(tableName, schemaName)
+}
+
+func (clientProxy *GormClientProxy) GetConstraintMeta(tableName, schemaName string) ([]ConstraintMeta, error) {
+	if clientProxy.driverOperator == nil {
+		return nil, errors.New("driver not support get db metas")
+	}
+	return clientProxy.driverOperator.GetConstraintMeta(tableName, schemaName)
+}
+
 func (clientProxy *GormClientProxy) CreateTableByMeta(tableMeta TableMeta) (err error) {
 	return clientProxy.driverOperator.CreateTableByMeta(tableMeta)
 }
@@ -213,20 +262,15 @@ func (clientProxy *GormClientProxy) Exec(sql string, values ...interface{}) Clie
 	return c
 }
 
-func (clientProxy *GormClientProxy) GetDBMetas() ([]ITableMeta, error) {
-	if clientProxy.driverOperator == nil {
-		return nil, errors.New("driver not support get db metas")
-	}
-	return clientProxy.driverOperator.GetDBMetas()
-}
-
 func (clientProxy *GormClientProxy) clone() *GormClientProxy {
-	return &GormClientProxy{
+	gp := &GormClientProxy{
 		driverOperator: clientProxy.driverOperator,
 		advanceQuery:   clientProxy.advanceQuery,
 		client:         clientProxy.client,
 		db:             clientProxy.db,
 	}
+	gp.setDB(clientProxy.db)
+	return gp
 }
 
 func (clientProxy *GormClientProxy) setDB(db *gorm.DB) {
@@ -290,6 +334,18 @@ func (clientProxy *GormClientProxy) GetPrimaryKey(tableName string) (string, err
 func (clientProxy *GormClientProxy) Raw(sql string, values ...interface{}) Client {
 	c := clientProxy.clone()
 	c.setDB(c.db.Raw(sql, values...))
+	return c
+}
+
+func (clientProxy *GormClientProxy) Joins(sql string, args ...interface{}) Client {
+	c := clientProxy.clone()
+	c.setDB(c.db.Joins(sql, args...))
+	return c
+}
+
+func (clientProxy *GormClientProxy) Preload(sql string, args ...interface{}) Client {
+	c := clientProxy.clone()
+	c.setDB(c.db.Preload(sql, args...))
 	return c
 }
 

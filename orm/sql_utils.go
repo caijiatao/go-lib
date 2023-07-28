@@ -10,20 +10,22 @@ import (
 
 const (
 	// 扩展条件
-	operateNe  = "ne"
-	operateLt  = "lt"
-	operateLte = "lte"
-	operateGt  = "gt"
-	operateGte = "gte"
+	operateNe   = "ne"
+	operateLt   = "lt"
+	operateLte  = "lte"
+	operateGt   = "gt"
+	operateGte  = "gte"
+	operateLike = "like"
 )
 
 var (
 	operateValueMap = map[string]string{
-		operateNe:  "!=",
-		operateLt:  "<",
-		operateLte: "<=",
-		operateGt:  ">",
-		operateGte: ">=",
+		operateNe:   "!=",
+		operateLt:   "<",
+		operateLte:  "<=",
+		operateGt:   ">",
+		operateGte:  ">=",
+		operateLike: "LIKE",
 	}
 )
 
@@ -154,6 +156,18 @@ type QueryPageCondition struct {
 	OrderBy []string
 	Limit   *int
 	Offset  *int
+}
+
+func NewQueryPageConditionFromPageParams(params PageParams, orderByParams OrderByParams) *QueryPageCondition {
+	if params.PageSize == 0 {
+		params.PageSize = 10
+	}
+	offset := (params.PageNum - 1) * params.PageSize
+	return &QueryPageCondition{
+		OrderBy: orderByParams.GetOrderBys(),
+		Limit:   &(params.PageSize),
+		Offset:  &offset,
+	}
 }
 
 type SelectValuesInterface interface {
@@ -470,4 +484,12 @@ func Paginator(qs Client, pageIn *PageIn, out interface{}) (int64, error) {
 		return 0, errors.WithStack(err)
 	}
 	return total, nil
+}
+
+func GenerateWhereConditionPlaceholder(cnt int) string {
+	placeholders := make([]string, cnt)
+	for i := 0; i < cnt; i++ {
+		placeholders[i] = "?"
+	}
+	return strings.Join(placeholders, ",")
 }

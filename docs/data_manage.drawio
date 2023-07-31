@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2023-07-28T07:38:04.284Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.4.0 Chrome/112.0.5615.204 Electron/24.5.1 Safari/537.36" etag="MyLkc5SVXOJ2F2tqfWDB" version="21.4.0" type="device" pages="17">
+<mxfile host="Electron" modified="2023-07-31T06:22:02.842Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.4.0 Chrome/112.0.5615.204 Electron/24.5.1 Safari/537.36" etag="dRo9BuexF95UlBF8Ty0i" version="21.4.0" type="device" pages="18">
   <diagram name="云部署系统架构" id="6Pyqc5dQGxIDJLktqAh5">
     <mxGraphModel dx="2375" dy="2071" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -2676,8 +2676,96 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="yvYJJUlXskGWMfA9ByEY-1" value="连接管理" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="yvYJJUlXskGWMfA9ByEY-1" value="连接管理" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="210" y="480" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="CX86oDR3wFVKezpqNlHl" name="并发读取数据源">
+    <mxGraphModel dx="3923" dy="1804" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="G8WCSuosGl1HxBT-m6l_-3" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="24" y="760" width="450" height="930" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-9" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-36" y="490" width="570" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-2" value="ETCD" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" parent="1" vertex="1">
+          <mxGeometry x="80" y="540" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-3" value="Postgre" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" parent="1" vertex="1">
+          <mxGeometry x="300" y="540" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="zoQ9mA8Kgi4BOom-Fm9Q-4" target="zoQ9mA8Kgi4BOom-Fm9Q-7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-4" value="开始同步数据" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="189" y="260" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="zoQ9mA8Kgi4BOom-Fm9Q-5" target="zoQ9mA8Kgi4BOom-Fm9Q-4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-5" value="" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="239" y="182" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="zoQ9mA8Kgi4BOom-Fm9Q-7" target="zoQ9mA8Kgi4BOom-Fm9Q-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-7" value="修改数据库状态并修改ETCD状态" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="189" y="370" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="zoQ9mA8Kgi4BOom-Fm9Q-22" target="zoQ9mA8Kgi4BOom-Fm9Q-25" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-22" value="监听ETCD信号变化" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="189" y="820" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-24" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="247" y="670" as="sourcePoint" />
+            <mxPoint x="247" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="zoQ9mA8Kgi4BOom-Fm9Q-25" target="zoQ9mA8Kgi4BOom-Fm9Q-27" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-25" value="通过ETCD抢占&lt;br&gt;同步数据源" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="189" y="960" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-36" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="zoQ9mA8Kgi4BOom-Fm9Q-27" target="zoQ9mA8Kgi4BOom-Fm9Q-35" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-27" value="开始同步数据" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="189" y="1100" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-34" value="y" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="zoQ9mA8Kgi4BOom-Fm9Q-31" target="zoQ9mA8Kgi4BOom-Fm9Q-33" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="G8WCSuosGl1HxBT-m6l_-4" value="Y" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="zoQ9mA8Kgi4BOom-Fm9Q-31" target="zoQ9mA8Kgi4BOom-Fm9Q-25" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="140" y="1410" />
+              <mxPoint x="140" y="990" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-31" value="是否还有未同步的表" style="rhombus;whiteSpace=wrap;html=1;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="209" y="1370" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-33" value="修改成数据同步完成" style="whiteSpace=wrap;html=1;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="189" y="1540" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="G8WCSuosGl1HxBT-m6l_-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="zoQ9mA8Kgi4BOom-Fm9Q-35" target="zoQ9mA8Kgi4BOom-Fm9Q-31" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zoQ9mA8Kgi4BOom-Fm9Q-35" value="同步完成则修改数据源同步状态" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="189" y="1240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="G8WCSuosGl1HxBT-m6l_-5" value="&lt;b&gt;并发执行&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="30" y="770" width="60" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

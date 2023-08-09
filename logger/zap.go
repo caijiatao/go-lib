@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"airec_server/pkg/osutil"
 	"context"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"

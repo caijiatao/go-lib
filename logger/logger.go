@@ -2,42 +2,108 @@ package logger
 
 import (
 	"context"
+	"golib/util"
+	"time"
 )
 
-var defaultLog Logger
+var defaultLogger = &logger{}
 
-func init() {
-	// TODO 读取不同的配置来替换不同的log底层实现
-	defaultLog = NewLogrusProxy()
+type logger struct {
+	L Logger
 }
 
-func getDefaultLogger() Logger {
-	return defaultLog
+func init() {
+	InitLogger()
+}
+
+func InitLogger() {
+	Init()
+	defaultLogger.L = newZapLogger()
 }
 
 type Logger interface {
-	// Info logs to INFO log. Arguments are handled in the manner of fmt.Print.
-	Info(args ...interface{})
-	// Infof logs to INFO log. Arguments are handled in the manner of fmt.Printf.
-	Infof(format string, args ...interface{})
-	// CtxInfof logs to INFO log. Arguments are handled in the manner of fmt.Printf.
-	CtxInfof(ctx context.Context, format string, args ...interface{})
-	// Error logs to ERROR log. Arguments are handled in the manner of fmt.Print.
-	Error(args ...interface{})
-	// Errorf logs to ERROR log. Arguments are handled in the manner of fmt.Printf.
-	Errorf(format string, args ...interface{})
-	// CtxErrorf logs to ERROR log. Arguments are handled in the manner of fmt.Printf.
-	CtxErrorf(ctx context.Context, format string, args ...interface{})
+	Debug(v ...interface{})
+	Debugf(format string, v ...interface{})
+	CtxDebugf(ctx context.Context, format string, v ...interface{})
+
+	Info(v ...interface{})
+	Infof(format string, v ...interface{})
+	CtxInfof(ctx context.Context, format string, v ...interface{})
+
+	Warn(v ...interface{})
+	Warnf(format string, v ...interface{})
+	CtxWarnf(ctx context.Context, format string, v ...interface{})
+
+	Error(v ...interface{})
+	Errorf(format string, v ...interface{})
+	CtxErrorf(ctx context.Context, format string, v ...interface{})
 }
 
-func Error(v ...any) {
-	getDefaultLogger().Error(v...)
+// Debug log
+func Debug(v ...any) {
+	defaultLogger.L.Debug(v...)
 }
 
-func CtxErrorf(ctx context.Context, format string, args ...interface{}) {
-
+// Debugf log
+func Debugf(format string, v ...any) {
+	defaultLogger.L.Debugf(format, v...)
 }
 
+// Info log
 func Info(v ...any) {
-	getDefaultLogger().Info(v...)
+	defaultLogger.L.Info(v...)
+}
+
+// Infof log
+func Infof(format string, v ...any) {
+	defaultLogger.L.Infof(format, v...)
+}
+
+// Warn log
+func Warn(v ...any) {
+	defaultLogger.L.Warn(v...)
+}
+
+// Warnf log
+func Warnf(format string, v ...any) {
+	defaultLogger.L.Warnf(format, v...)
+}
+
+// Error log
+func Error(v ...any) {
+	defaultLogger.L.Error(v...)
+}
+
+// Errorf log
+func Errorf(format string, v ...any) {
+	defaultLogger.L.Errorf(format, v...)
+}
+
+func CtxDebugf(ctx context.Context, format string, v ...interface{}) {
+	defaultLogger.L.CtxDebugf(ctx, format, v...)
+}
+
+func CtxInfof(ctx context.Context, format string, v ...interface{}) {
+	defaultLogger.L.CtxInfof(ctx, format, v...)
+}
+
+func CtxWarnf(ctx context.Context, format string, v ...interface{}) {
+	defaultLogger.L.CtxWarnf(ctx, format, v...)
+}
+
+func CtxErrorf(ctx context.Context, format string, v ...interface{}) {
+	defaultLogger.L.CtxErrorf(ctx, format, v...)
+}
+
+// LogDuration
+//
+//	@Description:
+//	  使用的时候直接defer LogDuration(ctx,format,xxx)()
+func LogDuration(ctx context.Context, format string, v ...interface{}) func() {
+	start := time.Now()
+	functionName := util.GetCallerFunctionName()
+	return func() {
+		CtxInfof(ctx, "Time taken by %s function is %v", functionName, time.Since(start))
+		CtxInfof(ctx, format, v...)
+	}
 }

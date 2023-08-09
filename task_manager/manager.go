@@ -121,7 +121,7 @@ func (m *TaskManager) handlePutEvent(ctx context.Context, event *clientv3.Event)
 		return
 	}
 
-	task := DecodeTask(string(event.Kv.Value), event.Kv.Version, handler.ParamsType)
+	task := decodeTask(string(event.Kv.Value), event.Kv.Version, handler.ParamsType)
 	if task.Status != pending {
 		return
 	}
@@ -140,9 +140,9 @@ func (m *TaskManager) handlePutEvent(ctx context.Context, event *clientv3.Event)
 			logger.CtxErrorf(ctx, "completeTask fail: %+v", err)
 		}
 	}()
-	err = handler.Exec(ctx, task)
+	err = handler.exec(ctx, task)
 	if err != nil {
-		logger.CtxErrorf(ctx, "handler.Exec err: %+v", err)
+		logger.CtxErrorf(ctx, "handler.exec err: %+v", err)
 		return
 	}
 }

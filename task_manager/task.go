@@ -67,7 +67,7 @@ func NewTask(taskId string, handlerName TaskHandlerName, params interface{}) *Ta
 	}
 }
 
-func DecodeTask(taskString string, taskVersion int64, paramType reflect.Type) *Task {
+func decodeTask(taskString string, taskVersion int64, paramType reflect.Type) *Task {
 	t := &Task{
 		Params: reflect.New(paramType).Interface(),
 	}
@@ -145,7 +145,7 @@ func NewTaskHandler(name TaskHandlerName, config *TaskConfig, taskFunc TaskFuncT
 	}
 }
 
-func (h *TaskHandler) Exec(ctx context.Context, task *Task) (err error) {
+func (h *TaskHandler) exec(ctx context.Context, task *Task) (err error) {
 	err = h.TaskFunc(ctx, task.Params)
 	if err != nil {
 		if task.ExecCount >= h.Config.Retry {

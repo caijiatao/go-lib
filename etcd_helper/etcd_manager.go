@@ -36,11 +36,3 @@ func (em *etcdManager) get(clientName string) *EtcdClient {
 	}
 	return value.(*EtcdClient)
 }
-
-func GetClientByName(clientName string) *EtcdClient {
-	return globalManager.get(clientName)
-}
-
-func GetDefaultClient() *EtcdClient {
-	return GetClientByName(defaultClientName)
-}

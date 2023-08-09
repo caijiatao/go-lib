@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-func InitTestClient() {
-	_, err := NewClient(Config{
+func InitTestSuite() {
+	err := InitETCDClient(Config{
 		Config: clientv3.Config{
 			Endpoints:   []string{"127.0.0.1:2379"},
 			DialTimeout: 10 * time.Second,
@@ -15,6 +15,4 @@ func InitTestClient() {
 	if err != nil {
 		panic(err)
 	}
-
-	return
 }

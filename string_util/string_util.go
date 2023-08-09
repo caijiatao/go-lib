@@ -1,5 +1,7 @@
 package string_util
 
+import "strings"
+
 // SplitAndTransferStrSliceToInterfaceSlice
 // @Description: 切分字符串数组，size 为每个切片的
 func SplitAndTransferStrSliceToInterfaceSlice(stringArray []string, maxSize int) []interface{} {
@@ -70,4 +72,12 @@ func FilterStrings(originStrings []string, filterStrings []string) []string {
 		res = append(res, s)
 	}
 	return res
+}
+
+func GetPrefix(s, delimiter string, count int) string {
+	parts := strings.Split(s, delimiter)
+	if len(parts) < count+1 {
+		return s
+	}
+	return strings.Join(parts[:count+1], delimiter)
 }

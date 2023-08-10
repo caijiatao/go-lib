@@ -9,6 +9,7 @@ import (
 	"golib/etcd_helper"
 	"golib/logger"
 	"sync"
+	"time"
 )
 
 var (
@@ -19,12 +20,12 @@ var (
 	taskPreemptFail = errors.New("task preempt fail")
 )
 
-var defaultTaskManager *TaskManager
+var globalTaskManager *TaskManager
 var defaultTaskManagerInitOnce sync.Once
 
 func Init() {
 	defaultTaskManagerInitOnce.Do(func() {
-		defaultTaskManager = NewTaskManager()
+		globalTaskManager = NewTaskManager()
 	})
 }
 
@@ -32,19 +33,30 @@ type TaskManager struct {
 	handlerMap   sync.Map
 	runningTasks sync.Map
 
+	taskExecGoPool gopool.Pool // 控制任务执行的并发度
+
 	wg sync.WaitGroup
 }
 
 func NewTaskManager() *TaskManager {
-	manager := &TaskManager{}
+	manager := &TaskManager{
+		taskExecGoPool: gopool.NewPool(taskKeyPrefix, gopool.NewConfig(gopool.WithConfigCap(1000))),
+	}
 	ctx, cancelCtx := context.WithCancel(context.Background())
 	ctx = etcd_helper.BindContext(ctx)
 
 	manager.wg.Add(1)
 	gopool.Go(func() {
-		err := manager.watchExecutableTasks(ctx)
+		err := manager.watchTasks(ctx)
 		if err != nil {
-			logger.CtxErrorf(ctx, "watchExecutableTasks err: %+v", err)
+			logger.CtxErrorf(ctx, "watchTasks err: %+v", err)
+			return
+		}
+	})
+	gopool.Go(func() {
+		err := manager.scanTasks(ctx)
+		if err != nil {
+			logger.CtxErrorf(ctx, "scanTasks err: %+v", err)
 			return
 		}
 	})
@@ -102,32 +114,49 @@ func (m *TaskManager) preemptTask(ctx context.Context, task *Task) (err error) {
 	return nil
 }
 
-func (m *TaskManager) completeTask(ctx context.Context, task *Task) (err error) {
-	putResponse, err := etcd_helper.Put(ctx, task.getTaskKey().String(), task.encode())
-	if err != nil {
-		logger.CtxErrorf(ctx, "completeTask Put err: %+v", err)
-		return err
+func (m *TaskManager) completeTask(ctx context.Context, task *Task) error {
+	if task.Status == success {
+		deleteResponse, err := etcd_helper.Delete(ctx, task.getTaskKey().String())
+		if err != nil {
+			logger.CtxErrorf(ctx, "completeTask Delete err: %+v", err)
+			return err
+		}
+		logger.CtxInfof(ctx, "completeTask DeleteResponse.deleted: %d", deleteResponse.Deleted)
+	} else {
+		putResponse, err := etcd_helper.Put(ctx, task.getTaskKey().String(), task.encode())
+		if err != nil {
+			logger.CtxErrorf(ctx, "completeTask Put err: %+v", err)
+			return err
+		}
+		logger.CtxInfof(ctx, "completeTask PutResponse.header.revision: %d", putResponse.Header.Revision)
 	}
-	task.TaskVersion = putResponse.Header.GetRevision()
 	m.runningTasks.Delete(task.getTaskKey().String())
 	return nil
 }
 
-func (m *TaskManager) handlePutEvent(ctx context.Context, event *clientv3.Event) {
-	key := taskKey(event.Kv.Key)
+func (m *TaskManager) handleTask(ctx context.Context, k, v []byte, kvVersion int64) {
+	key := taskKey(k)
 	handler := m.getHandler(key.getHandlerName())
 	if handler == nil {
 		logger.Errorf("handler not found, handlerName: %s", key.getHandlerName())
 		return
 	}
 
-	task := decodeTask(string(event.Kv.Value), event.Kv.Version, handler.ParamsType)
+	task := decodeTask(string(v), kvVersion, handler.ParamsType)
+	if task == nil {
+		logger.CtxInfof(ctx, "decodeTask fail, value:%s", v)
+		return
+	}
+	ctx = logger.CtxWithTraceId(ctx, task.TraceId)
+	m.taskExecGoPool.Go(func() {
+		m.handlerPendingTask(ctx, task, handler)
+	})
+}
+
+func (m *TaskManager) handlerPendingTask(ctx context.Context, task *Task, handler *TaskHandler) {
 	if task.Status != pending {
 		return
 	}
-
-	ctx = logger.WithTraceId(ctx)
-
 	err := m.preemptTask(ctx, task)
 	if err != nil {
 		logger.CtxInfof(ctx, "preemptTask fail: %+v", err)
@@ -140,28 +169,54 @@ func (m *TaskManager) handlePutEvent(ctx context.Context, event *clientv3.Event)
 			logger.CtxErrorf(ctx, "completeTask fail: %+v", err)
 		}
 	}()
+	// 延迟执行
+	after := task.NextExecuteTime.Sub(time.Now())
+	select {
+	case <-time.After(after):
+	}
 	err = handler.exec(ctx, task)
 	if err != nil {
-		logger.CtxErrorf(ctx, "handler.exec err: %+v", err)
+		logger.CtxErrorf(ctx, "handler.exec err: %s", err.Error())
 		return
 	}
 }
 
-func (m *TaskManager) watchExecutableTasks(ctx context.Context) (err error) {
+func (m *TaskManager) watchTasks(ctx context.Context) (err error) {
 	wch := etcd_helper.Watch(ctx, taskKeyPrefix, clientv3.WithPrefix())
 	m.wg.Done()
 	for wc := range wch {
 		for _, event := range wc.Events {
 			if event.Type == clientv3.EventTypePut {
-				m.handlePutEvent(ctx, event)
+				m.handleTask(ctx, event.Kv.Key, event.Kv.Value, event.Kv.Version)
 			}
 		}
 	}
 	return nil
 }
 
+func (m *TaskManager) scanTasks(ctx context.Context) error {
+	for {
+		afterTime := time.After(time.Minute)
+		select {
+		case <-afterTime:
+			logger.CtxInfof(ctx, "scanTasks start")
+		case <-ctx.Done():
+			logger.CtxInfof(ctx, "scanTasks ctx.Done")
+			return nil
+		}
+		getResponse, err := etcd_helper.Get(ctx, taskKeyPrefix, clientv3.WithPrefix())
+		if err != nil {
+			continue
+		}
+		logger.CtxInfof(ctx, "scanTasks len(getResponse.Kvs): %d", len(getResponse.Kvs))
+		for _, kv := range getResponse.Kvs {
+			m.handleTask(ctx, kv.Key, kv.Value, kv.Version)
+		}
+	}
+}
+
 func (m *TaskManager) interruptTask(ctx context.Context, task *Task) error {
-	task.markPending()
+	task.markPending(0)
 	_, err := etcd_helper.Put(ctx, task.getTaskKey().String(), task.encode())
 	if err != nil {
 		return err

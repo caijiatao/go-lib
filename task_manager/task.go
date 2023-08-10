@@ -1,7 +1,6 @@
 package task_manager
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -49,21 +48,28 @@ type Task struct {
 
 	Status      TaskStatus
 	ExecCount   int
-	TaskVersion int64 // 任务版本号，用于任务抢占
+	TaskVersion int64  // 任务版本号，用于任务抢占
+	TraceId     string // 日志id
 
-	CreateTime     time.Time
-	LastUpdateTime time.Time
+	CreateTime      time.Time
+	NextExecuteTime time.Time
+	LastUpdateTime  time.Time
 }
 
 func NewTask(taskId string, handlerName TaskHandlerName, params interface{}) *Task {
+	handler := globalTaskManager.getHandler(handlerName)
+	if handler == nil {
+		return nil
+	}
 	return &Task{
-		TaskId:         taskId,
-		HandlerName:    handlerName,
-		Params:         params,
-		Status:         pending,
-		ExecCount:      0,
-		CreateTime:     time.Now(),
-		LastUpdateTime: time.Now(),
+		TaskId:          taskId,
+		HandlerName:     handlerName,
+		Params:          params,
+		Status:          pending,
+		ExecCount:       0,
+		CreateTime:      time.Now(),
+		NextExecuteTime: time.Now().Add(handler.Config.DelayTime),
+		LastUpdateTime:  time.Now(),
 	}
 }
 
@@ -98,8 +104,9 @@ func (t *Task) markRunning() {
 	t.Status = running
 }
 
-func (t *Task) markPending() {
+func (t *Task) markPending(delayTime time.Duration) {
 	t.LastUpdateTime = time.Now()
+	t.NextExecuteTime = time.Now().Add(delayTime)
 	t.Status = pending
 }
 
@@ -111,50 +118,4 @@ func (t *Task) markFail() {
 func (t *Task) markSuccess() {
 	t.LastUpdateTime = time.Now()
 	t.Status = success
-}
-
-type TaskConfig struct {
-	Timeout   time.Duration // 任务超时时间
-	DelayTime time.Duration // 延迟多长时间再执行
-	Retry     int
-}
-
-func NewTaskConfig() *TaskConfig {
-	return &TaskConfig{
-		Timeout:   0,
-		DelayTime: 0,
-		Retry:     0,
-	}
-}
-
-type TaskFuncType func(ctx context.Context, params interface{}) (err error)
-
-type TaskHandler struct {
-	Name       TaskHandlerName
-	Config     *TaskConfig
-	TaskFunc   TaskFuncType
-	ParamsType reflect.Type
-}
-
-func NewTaskHandler(name TaskHandlerName, config *TaskConfig, taskFunc TaskFuncType, paramsType interface{}) *TaskHandler {
-	return &TaskHandler{
-		Name:       name,
-		Config:     config,
-		TaskFunc:   taskFunc,
-		ParamsType: reflect.TypeOf(paramsType),
-	}
-}
-
-func (h *TaskHandler) exec(ctx context.Context, task *Task) (err error) {
-	err = h.TaskFunc(ctx, task.Params)
-	if err != nil {
-		if task.ExecCount >= h.Config.Retry {
-			task.markFail()
-		} else {
-			task.markPending()
-		}
-		return err
-	}
-	task.markSuccess()
-	return nil
 }

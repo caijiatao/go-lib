@@ -13,7 +13,7 @@ var (
 
 func initManager() {
 	globalPoolManager = &poolManager{}
-	_ = globalPoolManager.register(NewPool(defaultPoolName, NewConfig()))
+	NewPool(defaultPoolName, NewConfig())
 }
 
 type poolManager struct {

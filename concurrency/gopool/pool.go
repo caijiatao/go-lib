@@ -23,7 +23,12 @@ type pool struct {
 }
 
 func NewPool(name string, config *Config) Pool {
-	return &pool{name: name, config: config, tasks: &taskManager{}}
+	if p := globalPoolManager.getPoolByName(name); p != nil {
+		return p
+	}
+	p := &pool{name: name, config: config, tasks: &taskManager{}}
+	_ = globalPoolManager.register(p)
+	return p
 }
 
 func (p *pool) Name() string {

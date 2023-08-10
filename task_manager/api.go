@@ -49,12 +49,3 @@ func SubmitTasks(ctx context.Context, tasks []*Task) (err error) {
 	}
 	return nil
 }
-
-func AllTaskDone(ctx context.Context) bool {
-	isAllDone := true
-	globalTaskManager.runningTasks.Range(func(key, value interface{}) bool {
-		isAllDone = false
-		return false // 返回 false 以停止遍历
-	})
-	return isAllDone
-}

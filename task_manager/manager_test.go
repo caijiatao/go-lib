@@ -44,14 +44,12 @@ func TestTaskManager(t *testing.T) {
 	err = SubmitTask(ctx, testTask)
 	assert.Nil(t, err)
 
-	time.Sleep(1 * time.Second)
-
 	for {
-		done := AllTaskDone(ctx)
-		if done {
+		getResponse, err := etcd_helper.Get(ctx, testTask.getTaskKey().String())
+		assert.Nil(t, err)
+		if len(getResponse.Kvs) == 0 {
 			break
 		}
-		time.Sleep(2 * time.Second)
 	}
 	assert.Equal(t, int64(1), value)
 }

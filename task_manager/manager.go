@@ -30,18 +30,13 @@ func Init() {
 }
 
 type TaskManager struct {
-	handlerMap   sync.Map
-	runningTasks sync.Map
-
-	taskExecGoPool gopool.Pool // 控制任务执行的并发度
+	handlerMap sync.Map
 
 	wg sync.WaitGroup
 }
 
 func NewTaskManager() *TaskManager {
-	manager := &TaskManager{
-		taskExecGoPool: gopool.NewPool(taskKeyPrefix, gopool.NewConfig(gopool.WithConfigCap(1000))),
-	}
+	manager := &TaskManager{}
 	ctx, cancelCtx := context.WithCancel(context.Background())
 	ctx = etcd_helper.BindContext(ctx)
 
@@ -96,44 +91,6 @@ func (m *TaskManager) getHandler(handlerName TaskHandlerName) *TaskHandler {
 	return handler
 }
 
-func (m *TaskManager) preemptTask(ctx context.Context, task *Task) (err error) {
-	task.markRunning()
-
-	txn := etcd_helper.Context(ctx).
-		Txn(ctx).
-		If(clientv3.Compare(clientv3.Version(task.getTaskKey().String()), "=", task.TaskVersion)).
-		Then(clientv3.OpPut(task.getTaskKey().String(), task.encode()))
-	txnResponse, err := txn.Commit()
-	if err != nil {
-		return err
-	}
-	if !txnResponse.Succeeded {
-		return taskPreemptFail
-	}
-	m.runningTasks.Store(task.getTaskKey().String(), task)
-	return nil
-}
-
-func (m *TaskManager) completeTask(ctx context.Context, task *Task) error {
-	if task.Status == success {
-		deleteResponse, err := etcd_helper.Delete(ctx, task.getTaskKey().String())
-		if err != nil {
-			logger.CtxErrorf(ctx, "completeTask Delete err: %+v", err)
-			return err
-		}
-		logger.CtxInfof(ctx, "completeTask DeleteResponse.deleted: %d", deleteResponse.Deleted)
-	} else {
-		putResponse, err := etcd_helper.Put(ctx, task.getTaskKey().String(), task.encode())
-		if err != nil {
-			logger.CtxErrorf(ctx, "completeTask Put err: %+v", err)
-			return err
-		}
-		logger.CtxInfof(ctx, "completeTask PutResponse.header.revision: %d", putResponse.Header.Revision)
-	}
-	m.runningTasks.Delete(task.getTaskKey().String())
-	return nil
-}
-
 func (m *TaskManager) handleTask(ctx context.Context, k, v []byte, kvVersion int64) {
 	key := taskKey(k)
 	handler := m.getHandler(key.getHandlerName())
@@ -147,38 +104,7 @@ func (m *TaskManager) handleTask(ctx context.Context, k, v []byte, kvVersion int
 		logger.CtxInfof(ctx, "decodeTask fail, value:%s", v)
 		return
 	}
-	ctx = logger.CtxWithTraceId(ctx, task.TraceId)
-	m.taskExecGoPool.Go(func() {
-		m.handlerPendingTask(ctx, task, handler)
-	})
-}
-
-func (m *TaskManager) handlerPendingTask(ctx context.Context, task *Task, handler *TaskHandler) {
-	if task.Status != pending {
-		return
-	}
-	err := m.preemptTask(ctx, task)
-	if err != nil {
-		logger.CtxInfof(ctx, "preemptTask fail: %+v", err)
-		return
-	}
-	// 抢占到了，执行完后需要释放
-	defer func() {
-		err := m.completeTask(ctx, task)
-		if err != nil {
-			logger.CtxErrorf(ctx, "completeTask fail: %+v", err)
-		}
-	}()
-	// 延迟执行
-	after := task.NextExecuteTime.Sub(time.Now())
-	select {
-	case <-time.After(after):
-	}
-	err = handler.exec(ctx, task)
-	if err != nil {
-		logger.CtxErrorf(ctx, "handler.exec err: %s", err.Error())
-		return
-	}
+	handler.handleTask(ctx, task)
 }
 
 func (m *TaskManager) watchTasks(ctx context.Context) (err error) {
@@ -215,28 +141,18 @@ func (m *TaskManager) scanTasks(ctx context.Context) error {
 	}
 }
 
-func (m *TaskManager) interruptTask(ctx context.Context, task *Task) error {
-	task.markPending(0)
-	_, err := etcd_helper.Put(ctx, task.getTaskKey().String(), task.encode())
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // Close
 //
 //	@Description: 停掉所有正在跑的任务
 func (m *TaskManager) Close() error {
-	ctx := etcd_helper.BindContext(logger.WithTraceId(context.Background()))
-	m.runningTasks.Range(func(key, value interface{}) bool {
-		task, ok := value.(*Task)
+	m.handlerMap.Range(func(key, value interface{}) bool {
+		taskHandler, ok := value.(*TaskHandler)
 		if !ok {
 			return true
 		}
-		err := m.interruptTask(ctx, task)
+		err := taskHandler.Close()
 		if err != nil {
-			logger.CtxErrorf(ctx, "close interruptTask fail: %+v", err)
+			logger.Errorf("close interruptRunningTask fail: %+v", err)
 		}
 		return true
 	})

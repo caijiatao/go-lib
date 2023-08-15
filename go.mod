@@ -7,6 +7,7 @@ require (
 	github.com/deckarep/golang-set v1.8.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-resty/resty/v2 v2.7.0
+	github.com/gorilla/websocket v1.5.0
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/json-iterator/go v1.1.12
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible

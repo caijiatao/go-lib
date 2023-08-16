@@ -1,6 +1,7 @@
 package im
 
 import (
+	"context"
 	"github.com/gorilla/websocket"
 	"golib/logger"
 	"time"
@@ -10,15 +11,20 @@ const (
 	writeWait = time.Second * 10
 )
 
+type ReadProcessFuncType func(ctx context.Context, params interface{}) (err error)
+
 type Client struct {
 	conn *websocket.Conn
-
 	send chan []byte
+	Key  string // 通过key来定位发送的客户端
+
+	readProcessFunc ReadProcessFuncType
 }
 
 func NewClient(conn *websocket.Conn) *Client {
 	return &Client{
 		conn: conn,
+		send: make(chan []byte, 256),
 	}
 }
 
@@ -61,6 +67,9 @@ func (c *Client) read() {
 			logger.Errorf("read message error: %v", err)
 			return
 		}
-		logger.Infof("read message success, message: %s", string(message))
+		logger.Infof("read message success,clientKey:%s, message: %s", c.Key, string(message))
+		if c.readProcessFunc == nil {
+			return
+		}
 	}
 }

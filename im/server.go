@@ -1,8 +1,8 @@
 package im
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"net/http"
 )
 
 type Server struct {
@@ -19,13 +19,28 @@ var (
 	}
 )
 
-func Connect(c *gin.Context, key string) {
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+func Register(w http.ResponseWriter, r *http.Request, key string) error {
+	client, err := connect(w, r)
 	if err != nil {
-		return
+		return err
+	}
+	client.Key = key
+	err = globalClientManager.Register(client)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func connect(w http.ResponseWriter, r *http.Request) (*Client, error) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		return nil, err
 	}
 	client := NewClient(conn)
 
 	go client.write()
 	go client.read()
+
+	return client, nil
 }

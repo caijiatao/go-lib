@@ -227,6 +227,40 @@ func TestExecTaskDelayTime(t *testing.T) {
 	assert.Equal(t, int64(1), value)
 }
 
-func TestPreemptTask(t *testing.T) {
+func TestInterruptTask(t *testing.T) {
+	var (
+		err error
+	)
+	type testParamType struct {
+		AddValue int64
+	}
+	var (
+		handlerName     = TaskHandlerName("test_task_interrupt")
+		testHandlerFunc = func() TaskFuncType {
+			return func(ctx context.Context, params interface{}) (err error) {
+				_ = globalTaskManager.Close()
+				return nil
+			}
+		}
+		taskCloseHandler = NewTaskHandler(handlerName, NewTaskConfig(), testHandlerFunc(), testParamType{})
+	)
 
+	err = RegisterTaskHandler(taskCloseHandler)
+	assert.Nil(t, err)
+	ctx := etcd_helper.BindContext(context.Background())
+	task := NewTask("1", handlerName, &testParamType{AddValue: int64(1)})
+	err = SubmitTask(ctx, task)
+	assert.Nil(t, err)
+
+	time.Sleep(2 * time.Second)
+
+	getResponse, err := etcd_helper.Get(ctx, task.getTaskKey().String())
+	assert.Nil(t, err)
+	for _, kv := range getResponse.Kvs {
+		task := decodeTask(string(kv.Value), kv.Version, taskCloseHandler.ParamsType)
+		assert.Equal(t, task.Status, pending)
+	}
+
+	_, err = etcd_helper.Delete(ctx, task.getTaskKey().String())
+	assert.Nil(t, err)
 }

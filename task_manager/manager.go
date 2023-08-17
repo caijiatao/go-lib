@@ -8,6 +8,7 @@ import (
 	"golib/concurrency/gopool"
 	"golib/etcd_helper"
 	"golib/logger"
+	"golib/orm"
 	"sync"
 	"time"
 )
@@ -33,12 +34,16 @@ type TaskManager struct {
 	handlerMap sync.Map
 
 	wg sync.WaitGroup
+
+	cancelCtx func()
 }
 
 func NewTaskManager() *TaskManager {
 	manager := &TaskManager{}
 	ctx, cancelCtx := context.WithCancel(context.Background())
+	ctx = orm.BindContext(ctx)
 	ctx = etcd_helper.BindContext(ctx)
+	manager.cancelCtx = cancelCtx
 
 	manager.wg.Add(1)
 	gopool.Go(func() {
@@ -59,7 +64,6 @@ func NewTaskManager() *TaskManager {
 
 	// 服务退出时清理任务
 	cancel := func() {
-		cancelCtx()
 		err := manager.Close()
 		if err != nil {
 			logger.CtxErrorf(ctx, "manager.Close err: %+v", err)
@@ -145,6 +149,7 @@ func (m *TaskManager) scanTasks(ctx context.Context) error {
 //
 //	@Description: 停掉所有正在跑的任务
 func (m *TaskManager) Close() error {
+	m.cancelCtx()
 	m.handlerMap.Range(func(key, value interface{}) bool {
 		taskHandler, ok := value.(*TaskHandler)
 		if !ok {

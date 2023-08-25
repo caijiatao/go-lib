@@ -42,11 +42,11 @@ const (
 )
 
 type Task struct {
-	TaskId      string
+	TaskId      string // task id 业务方必须保持在同个Handler唯一
 	HandlerName TaskHandlerName
 	Params      interface{} // 任务参数
 
-	Status      TaskStatus
+	Status      TaskStatus // 任务状态
 	ExecCount   int
 	TaskVersion int64  // 任务版本号，用于任务抢占
 	TraceId     string // 日志id

@@ -112,7 +112,7 @@ func ConfigMapOnChangeCache[T any](c *cache.Cache) ConfigMapOnChangeFunc {
 		case updateConfigMap:
 			err = updateConfigMapOnChange[T](c, namespace, configMapName, oldDataMap, newDataMap)
 		case deleteConfigMap:
-			err = deleteConfigMapOnChange[T](c, namespace, configMapName)
+			err = deleteConfigMapOnChange(c, namespace, configMapName)
 		}
 		return err
 	}
@@ -132,7 +132,7 @@ func updateConfigMapOnChange[T any](c *cache.Cache, namespace, configMapName str
 	return nil
 }
 
-func deleteConfigMapOnChange[T any](c *cache.Cache, namespace, configMapName string) (err error) {
+func deleteConfigMapOnChange(c *cache.Cache, namespace, configMapName string) (err error) {
 	c.Delete(GetConfigMapCacheKey(namespace, configMapName))
 	return nil
 }

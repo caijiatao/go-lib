@@ -28,6 +28,7 @@ var (
 
 func getKubeConfig() *restclient.Config {
 	kubeConfigInitOnce.Do(func() {
+		//kubeconfig := filepath.Join("./", ".kube", "airec-server-client.kubeconfig")
 		kubeconfig := filepath.Join("./", ".kube", "config")
 		var err error
 		kubeConfig, err = clientcmd.BuildConfigFromFlags("", kubeconfig)

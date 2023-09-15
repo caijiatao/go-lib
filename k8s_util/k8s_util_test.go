@@ -29,8 +29,8 @@ func TestGetClient(t *testing.T) {
 	client, err := GetClient()
 	assert.Nil(t, err)
 	list, err := client.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	fmt.Println(list)
-	fmt.Println(err)
+	assert.Greater(t, len(list.Items), 0)
+	assert.Nil(t, err)
 }
 
 func TestCreateNamespace(t *testing.T) {
@@ -51,7 +51,7 @@ func TestCreateNamespace(t *testing.T) {
 }
 
 func TestCreateConfigMap(t *testing.T) {
-	configMapName := "test-config-map"
+	configMapName := "airec-config-map"
 	hasConfigMap, err := HasConfigMap(context.Background(), testNamespace, configMapName)
 	assert.Nil(t, err)
 	if hasConfigMap {

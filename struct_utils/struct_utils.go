@@ -1,6 +1,9 @@
 package struct_utils
 
-import "reflect"
+import (
+	"encoding/json"
+	"reflect"
+)
 
 // CopyIntersectionStruct assign values between two struct assignments(A and B) that have intersection.
 // traverse all elements in A and assign to according part of B if B has that field
@@ -78,4 +81,17 @@ func IsStructEmpty(v interface{}) bool {
 		}
 	}
 	return true
+}
+
+func StructToMap(data interface{}) map[string]interface{} {
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		return nil
+	}
+	var result map[string]interface{}
+	err = json.Unmarshal(dataBytes, &result)
+	if err != nil {
+		return nil
+	}
+	return result
 }

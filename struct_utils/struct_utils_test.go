@@ -131,3 +131,45 @@ func BenchmarkNormalIsStructEmpty(b *testing.B) {
 		s.IsEmpty()
 	}
 }
+
+func TestStructToMap(t *testing.T) {
+	type args struct {
+		data interface{}
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[string]interface{}
+	}{
+		{
+			name: "",
+			args: args{
+				data: struct {
+					Name      string
+					Age       string
+					ComplexSt struct {
+						Name string
+					}
+				}{
+					Name: "derrick",
+					Age:  "18",
+					ComplexSt: struct{ Name string }{
+						Name: "derrick222",
+					},
+				},
+			},
+			want: map[string]interface{}{
+				"Name": "derrick",
+				"Age":  "18",
+				"ComplexSt": map[string]interface{}{
+					"Name": "derrick222",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, StructToMap(tt.args.data), "StructToMap(%v)", tt.args.data)
+		})
+	}
+}

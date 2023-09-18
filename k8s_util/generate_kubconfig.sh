@@ -23,6 +23,3 @@ users:
   user:
     token: ${token}
 " > airec-server-client.kubeconfig
-
-
-redis-cli --cluster create 10.244.1.232:6379 10.244.1.233:6379 10.244.1.234:6379

@@ -29,6 +29,7 @@ require (
 )
 
 require (
+	github.com/agiledragon/gomonkey/v2 v2.10.1 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect

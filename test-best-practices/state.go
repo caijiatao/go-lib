@@ -12,20 +12,28 @@ const (
 	deliveringEvent Event = iota + 1
 	onHoldEvent
 	reDeliveringEvent
-	delivered
+	deliveredEvent
 )
 
 type State int64
 
 const (
-	initialState = iota
+	initialState State = iota
+	delivering
+	onHold
+	delivered
 )
 
 var (
 	orderEventStateMap = map[Event]struct {
 		currentStateSet mapset.Set
 		targetState     State
-	}{}
+	}{
+		onHoldEvent: {
+			currentStateSet: mapset.NewSet(delivering),
+			targetState:     onHold,
+		},
+	}
 )
 
 type Order struct {

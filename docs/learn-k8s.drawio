@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2023-11-22T06:18:50.663Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.4.0 Chrome/112.0.5615.204 Electron/24.5.1 Safari/537.36" etag="RRX-1m0po4knbZZ9kcnX" version="21.4.0" type="device" pages="17">
+<mxfile host="Electron" modified="2023-11-23T10:03:52.341Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.4.0 Chrome/112.0.5615.204 Electron/24.5.1 Safari/537.36" etag="Ivy2svsQvEyoe6qzHTYE" version="21.4.0" type="device" pages="18">
   <diagram name="第 1 页" id="4MX2mIIqE0KcPT3s4_Cr">
     <mxGraphModel dx="2375" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -3938,6 +3938,92 @@
         </mxCell>
         <mxCell id="4zBlO1wzWV1n3UjMHLnP-65" value="&lt;b&gt;Service1&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontFamily=Architects Daughter;sketch=1;curveFitting=1;jiggle=2;" vertex="1" parent="1">
           <mxGeometry x="8500" y="620" width="75" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="n8jl9fTFMOgklzRFe_C8" name="第 18 页">
+    <mxGraphModel dx="3475" dy="2230" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="y5ArOvYUmxciw-XNdj7--30" value="" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=20;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="-1050" y="55" width="170" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--31" value="" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=20;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="-590" y="-25" width="202.5" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--20" value="" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=20;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="-510" y="130" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--18" value="&lt;pre style=&quot;&quot;&gt;&lt;font face=&quot;Architects Daughter&quot;&gt;&lt;b&gt;apiVersion: networking.k8s.io/v1&lt;br&gt;kind: Ingress&lt;br&gt;metadata:&lt;br&gt;  name: my-ingress&lt;br&gt;  namespace: ingress-nginx&lt;br&gt;spec:&lt;br&gt;  ingressClassName: nginx&lt;br&gt;  rules:&lt;br&gt;    - http:&lt;br&gt;        paths:&lt;br&gt;          - backend:&lt;br&gt;              service:&lt;br&gt;                name: nginx-service&lt;br&gt;                port:&lt;br&gt;                  number: 80&lt;br&gt;            path: /&lt;br&gt;            pathType: Prefix&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;/pre&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;whiteSpace=wrap;html=1;fontSize=16;fontFamily=Architects Daughter;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" vertex="1" parent="1">
+          <mxGeometry x="-590" y="-170" width="340" height="390" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--21" value="" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=20;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="-120" y="50" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--10" value="&lt;pre style=&quot;&quot;&gt;&lt;code class=&quot;language-yaml&quot; style=&quot;&quot;&gt;&lt;font face=&quot;Architects Daughter&quot;&gt;&lt;b&gt;apiVersion: v1&lt;br&gt;kind: Service&lt;br&gt;metadata:&lt;br&gt;  name: nginx-service&lt;br&gt;  namespace: ingress-nginx&lt;br&gt;spec:&lt;br&gt;  selector:&lt;br&gt;    app: nginx&lt;br&gt;  ports:&lt;br&gt;    - name: http&lt;br&gt;      port: 80&lt;br&gt;    &lt;/b&gt;&lt;/font&gt;&lt;/code&gt;&lt;/pre&gt;" style="text;whiteSpace=wrap;html=1;fontSize=16;fontFamily=Architects Daughter;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" vertex="1" parent="1">
+          <mxGeometry x="-120" y="-170" width="340" height="310" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--22" value="" style="edgeStyle=orthogonalEdgeStyle;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;entryX=0;entryY=0.75;entryDx=0;entryDy=0;curved=1;" edge="1" parent="1" source="y5ArOvYUmxciw-XNdj7--20" target="y5ArOvYUmxciw-XNdj7--10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--13" value="" style="rounded=1;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=20;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="335" y="230" width="210" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--11" value="&lt;pre style=&quot;border-color: var(--border-color); font-size: 16px; text-align: left;&quot;&gt;&lt;code style=&quot;border-color: var(--border-color);&quot; class=&quot;language-yaml&quot;&gt;&lt;font style=&quot;border-color: var(--border-color);&quot; face=&quot;Architects Daughter&quot;&gt;&lt;b style=&quot;border-color: var(--border-color);&quot;&gt;  targetPort: 80 &lt;/b&gt;&lt;/font&gt;&lt;/code&gt;&lt;/pre&gt;" style="rounded=1;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=20;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="-130" y="90" width="210" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--14" style="edgeStyle=orthogonalEdgeStyle;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;curved=1;" edge="1" parent="1" source="y5ArOvYUmxciw-XNdj7--11" target="y5ArOvYUmxciw-XNdj7--13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--5" style="edgeStyle=orthogonalEdgeStyle;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;curved=1;" edge="1" parent="1" source="y5ArOvYUmxciw-XNdj7--1" target="y5ArOvYUmxciw-XNdj7--4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--6" style="edgeStyle=orthogonalEdgeStyle;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;curved=1;" edge="1" parent="1" source="y5ArOvYUmxciw-XNdj7--1" target="y5ArOvYUmxciw-XNdj7--3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--7" style="edgeStyle=orthogonalEdgeStyle;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;curved=1;" edge="1" parent="1" source="y5ArOvYUmxciw-XNdj7--1" target="y5ArOvYUmxciw-XNdj7--2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--1" value="Nginx-Service" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="-100" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--2" value="Nginx-Pod2" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="380" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--3" value="Nginx-Pod1" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="380" y="290" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--4" value="Nginx-Pod3" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="380" y="570" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--9" value="&lt;pre style=&quot;font-size: 16px;&quot;&gt;&lt;code class=&quot;language-yaml&quot; style=&quot;font-size: 16px;&quot;&gt;&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=Architects+Daughter&quot; face=&quot;Architects Daughter&quot; style=&quot;font-size: 16px;&quot;&gt;&lt;b style=&quot;font-size: 16px;&quot;&gt;apiVersion: apps/v1&lt;br style=&quot;font-size: 16px;&quot;&gt;kind: Deployment&lt;br style=&quot;font-size: 16px;&quot;&gt;metadata:&lt;br style=&quot;font-size: 16px;&quot;&gt;  name: nginx-deployment&lt;br style=&quot;font-size: 16px;&quot;&gt;  namespace: ingress-nginx&lt;br style=&quot;font-size: 16px;&quot;&gt;spec:&lt;br style=&quot;font-size: 16px;&quot;&gt;  selector:&lt;br style=&quot;font-size: 16px;&quot;&gt;    matchLabels:&lt;br style=&quot;font-size: 16px;&quot;&gt;      app: nginx&lt;br style=&quot;font-size: 16px;&quot;&gt;  replicas: 3&lt;br style=&quot;font-size: 16px;&quot;&gt;  template:&lt;br style=&quot;font-size: 16px;&quot;&gt;    metadata:&lt;br style=&quot;font-size: 16px;&quot;&gt;      labels:&lt;br style=&quot;font-size: 16px;&quot;&gt;        app: nginx&lt;br style=&quot;font-size: 16px;&quot;&gt;    spec:&lt;br style=&quot;font-size: 16px;&quot;&gt;      containers:&lt;br style=&quot;font-size: 16px;&quot;&gt;        - name: nginx&lt;br style=&quot;font-size: 16px;&quot;&gt;          image: nginx:1.14.2&lt;br style=&quot;font-size: 16px;&quot;&gt;          ports:&lt;br style=&quot;font-size: 16px;&quot;&gt;            - containerPort: 80&lt;/b&gt;&lt;/font&gt;&lt;br style=&quot;font-size: 16px;&quot;&gt;&lt;/code&gt;&lt;/pre&gt;" style="text;whiteSpace=wrap;html=1;fontSize=16;fontFamily=Architects Daughter;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" vertex="1" parent="1">
+          <mxGeometry x="280" y="-170" width="340" height="530" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;" edge="1" parent="1" source="y5ArOvYUmxciw-XNdj7--15" target="y5ArOvYUmxciw-XNdj7--17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--15" value="NginxClass" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=20;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="-940" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;" edge="1" parent="1" source="y5ArOvYUmxciw-XNdj7--16" target="y5ArOvYUmxciw-XNdj7--15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--16" value="Ingress-Controller" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=20;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="-1370" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;" edge="1" parent="1" source="y5ArOvYUmxciw-XNdj7--17" target="y5ArOvYUmxciw-XNdj7--1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--17" value="Ingress" style="rounded=0;whiteSpace=wrap;html=1;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=20;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="-540" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--28" value="&lt;pre style=&quot;&quot;&gt;&lt;font face=&quot;Architects Daughter&quot;&gt;&lt;b&gt;apiVersion: networking.k8s.io/v1&lt;br&gt;kind: IngressClass&lt;br&gt;metadata:&lt;br&gt;  labels:&lt;br&gt;    helm.sh/chart: ingress-nginx-4.0.15&lt;br&gt;    app.kubernetes.io/name: ingress-nginx&lt;br&gt;    app.kubernetes.io/instance: ingress-nginx&lt;br&gt;    app.kubernetes.io/version: 1.1.1&lt;br&gt;    app.kubernetes.io/managed-by: Helm&lt;br&gt;    app.kubernetes.io/component: controller&lt;br&gt;  name: nginx&lt;br&gt;  namespace: ingress-nginx&lt;br&gt;spec:&lt;br&gt;  controller: k8s.io/ingress-nginx&lt;/b&gt;&lt;/font&gt;&lt;/pre&gt;" style="text;whiteSpace=wrap;html=1;fontSize=16;fontFamily=Architects Daughter;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" vertex="1" parent="1">
+          <mxGeometry x="-1020" y="-170" width="340" height="390" as="geometry" />
+        </mxCell>
+        <mxCell id="y5ArOvYUmxciw-XNdj7--32" value="" style="edgeStyle=orthogonalEdgeStyle;sketch=1;hachureGap=4;jiggle=2;curveFitting=1;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;fontSize=16;entryX=0;entryY=0.5;entryDx=0;entryDy=0;curved=1;" edge="1" parent="1" source="y5ArOvYUmxciw-XNdj7--30" target="y5ArOvYUmxciw-XNdj7--31">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

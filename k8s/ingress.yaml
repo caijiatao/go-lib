@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+  namespace: ingress-nginx
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: nginx-service
+                port:
+                  number: 80 # 跟service的port一致
+            path: /
+            pathType: Prefix
+

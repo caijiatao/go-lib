@@ -23,11 +23,13 @@ const (
 type ConfigMapOnChangeFunc func(namespace, configMapName string, oldDataMap, newDataMap *corev1.ConfigMap, operate configMapOperateType) error
 
 func ConfigWatcher(ctx context.Context, namespace, configMapName string, onChangeFunc ConfigMapOnChangeFunc) (cancel func()) {
+	// 获取 api server的客户端
 	clientSet, err := GetClient()
 	if err != nil {
 		panic(err)
 	}
 
+	// 实例化 configmap 的 informer
 	listWatcher := k8sCache.NewListWatchFromClient(
 		clientSet.CoreV1().RESTClient(),
 		"configmaps",
@@ -35,6 +37,7 @@ func ConfigWatcher(ctx context.Context, namespace, configMapName string, onChang
 		fields.Everything(),
 	)
 
+	// 实例化 informer
 	informer := k8sCache.NewSharedInformer(
 		listWatcher,
 		&corev1.ConfigMap{},
@@ -46,7 +49,9 @@ func ConfigWatcher(ctx context.Context, namespace, configMapName string, onChang
 		panic(err)
 	}
 
+	// 监听处理方法
 	_, err = informer.AddEventHandler(k8sCache.ResourceEventHandlerFuncs{
+		// 更新的方法
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			log.Info().Msg("ConfigMap updated")
 			oldConfigMap, ok := oldObj.(*corev1.ConfigMap)
@@ -64,14 +69,17 @@ func ConfigWatcher(ctx context.Context, namespace, configMapName string, onChang
 				logger.Errorf("New object config name error: %s , configMapName :%s", newConfigMap.Name, configMapName)
 				return
 			}
+			// 更新方法外部传入
 			err = onChangeFunc(namespace, configMapName, oldConfigMap, newConfigMap, updateConfigMap)
 			if err != nil {
 				logger.Errorf("update config map err:%s, configMapName:%s, namespace:%s", err.Error(), configMapName, namespace)
 			}
 		},
-		// Handle AddFunc and DeleteFunc if needed
+
+		// 处理删除的方法
 		DeleteFunc: func(obj interface{}) {
 			log.Info().Msg("ConfigMap deleted")
+			// 更新方法由外部传入
 			err = onChangeFunc(namespace, configMapName, nil, nil, deleteConfigMap)
 			if err != nil {
 				logger.Errorf("delete config map err:%s, configMapName:%s, namespace:%s", err.Error(), configMapName, namespace)
@@ -82,10 +90,12 @@ func ConfigWatcher(ctx context.Context, namespace, configMapName string, onChang
 		panic(err)
 	}
 
+	// 取消informer的方法返回给外面
 	stopCh := make(chan struct{})
 	cancel = func() {
 		close(stopCh)
 	}
+	// 启动 informer
 	go informer.Run(stopCh)
 	return cancel
 }

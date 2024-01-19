@@ -6,6 +6,10 @@ import (
 	"os"
 )
 
+func init() {
+
+}
+
 func main() {
 	flannelFlags := flag.NewFlagSet("flannel", flag.ExitOnError)
 

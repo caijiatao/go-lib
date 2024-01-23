@@ -10,6 +10,17 @@ func init() {
 
 }
 
+func switchTrue(num int) {
+	switch {
+	case num <= 0:
+		fmt.Println("<= 0")
+	case num <= 3:
+		fmt.Println("<= 3")
+	default:
+		fmt.Println("> 3")
+	}
+}
+
 func main() {
 	flannelFlags := flag.NewFlagSet("flannel", flag.ExitOnError)
 
@@ -24,4 +35,8 @@ func main() {
 	}
 
 	fmt.Println("kube:", kubeSubMgr)
+
+	switchTrue(-1)
+	switchTrue(1)
+	switchTrue(10)
 }

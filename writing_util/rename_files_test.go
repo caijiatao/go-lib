@@ -6,6 +6,6 @@ import (
 )
 
 func Test_removeSpaceFilesInFolder(t *testing.T) {
-	err := removeSpaceFilesInFolder(`C:\Users\caijiatao\Downloads\2dd23015-d80e-4fe7-8535-f62b35b944e7_Export-4e406b8b-26c5-4d50-b179-d0a841dffb0f\6a1539bc4f92415fbc69d6d93091bdd6`, ".png")
+	err := removeSpaceFilesInFolder(`C:\Users\caijiatao\Downloads\bec95a90-d792-4de9-8932-e8133af4b45a_Export-84c8354d-16f8-498b-bc6a-2c9c2e416f96\8a369eac176c437fafd3592e8e0dd2fa`, ".png")
 	assert.Nil(t, err)
 }

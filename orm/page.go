@@ -1,8 +1,8 @@
 package orm
 
 type PageParams struct {
-	PageSize int `json:"pageSize" binding:"required"`
-	PageNum  int `json:"pageNum"  binding:"required"`
+	PageSize int `json:"pageSize" binding:"required" form:"pageSize"`
+	PageNum  int `json:"pageNum"  binding:"required" form:"pageNum"`
 }
 
 type PageCommonResponse struct {

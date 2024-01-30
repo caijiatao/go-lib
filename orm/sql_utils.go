@@ -225,14 +225,6 @@ func GetPageConditionWithDefaultValue(pageNo, pageCount int) QueryPageCondition 
 
 }
 
-type QueryConditionTest struct {
-	order string `queryField:"at_id"`
-	page  QueryPageCondition
-}
-
-func (q *QueryConditionTest) GetPageCondition() (QueryPageCondition, []string) {
-	return q.page, []string{"id desc", "ctime asc"}
-}
 func ClientWhereIgnoreOrderBy(client Client, condition interface{}) Client {
 	queryCondition, _ := fetchQueryAndPageInfo(condition)
 
@@ -492,4 +484,21 @@ func GenerateWhereConditionPlaceholder(cnt int) string {
 		placeholders[i] = "?"
 	}
 	return strings.Join(placeholders, ",")
+}
+
+func EscapeLike(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	buf := make([]byte, 0)
+	for i := 0; i < len(s); i++ {
+		r := s[i]
+		if r == []byte("%")[0] || r == []byte("_")[0] {
+			buf = append(buf, []byte("\\")[0])
+			buf = append(buf, r)
+		} else {
+			buf = append(buf, r)
+		}
+	}
+	return string(buf)
 }

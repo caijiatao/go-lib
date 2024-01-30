@@ -10,6 +10,7 @@ var (
 )
 
 const defaultDBClientName = "default"
+const RecommendJobDBClientName = "recommend_job"
 
 var (
 	clientNameExists = errors.New("client name exists")
@@ -24,7 +25,7 @@ func (m *clientManager) get(dbClientName string) Client {
 	if !ok {
 		return nil
 	}
-	return db.(*GormClientProxy)
+	return db.(Client)
 }
 
 func (m *clientManager) add(dbClientName string, db Client) error {

@@ -3,6 +3,7 @@ package orm
 import (
 	"context"
 	"database/sql"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -11,46 +12,37 @@ type contextKeyType string
 const dbContextKey contextKeyType = "default"
 const SourceDBClientNamePrefix = "source: "
 
-type Query interface {
+// Client
+// @Description: ORM client 接口 ，底层可以替换实现
+type Client interface {
+	DriverMetaOperator
+	AdvanceQuery
+	Create(value interface{}) Client
+	CreateInBatches(value interface{}, batchSize int) Client
+	Save(value interface{}) Client
 	First(dest interface{}, conds ...interface{}) Client
 	Take(dest interface{}, conds ...interface{}) Client
 	Last(dest interface{}, conds ...interface{}) Client
 	Find(dest interface{}, conds ...interface{}) Client
 	FirstOrInit(dest interface{}, conds ...interface{}) Client
 	FirstOrCreate(dest interface{}, conds ...interface{}) Client
+	Update(column string, value interface{}) Client
+	Updates(values interface{}) Client
+	UpdateColumn(column string, value interface{}) Client
+	UpdateColumns(values interface{}) Client
+	Delete(value interface{}, conds ...interface{}) Client
 	Count(count *int64) Client
 	Row() *sql.Row
 	Rows() (*sql.Rows, error)
 	Scan(dest interface{}) Client
 	Pluck(column string, dest interface{}) Client
 	ScanRows(rows *sql.Rows, dest interface{}) error
-	Joins(sql string, args ...interface{}) Client
-	Select(query interface{}, args ...interface{}) Client
-}
-
-type Create interface {
-	Create(value interface{}) Client
-	CreateInBatches(value interface{}, batchSize int) Client
-	Save(value interface{}) Client
-	DB() *gorm.DB
-}
-
-type Update interface {
-	Update(column string, value interface{}) Client
-	Updates(values interface{}) Client
-	UpdateColumn(column string, value interface{}) Client
-	UpdateColumns(values interface{}) Client
 	Begin(opts ...*sql.TxOptions) Client
 	Commit() Client
 	Rollback() Client
 	SavePoint(name string) Client
 	RollbackTo(name string) Client
 	Exec(sql string, values ...interface{}) Client
-	Transaction(fc func(tx Client) error, opts ...*sql.TxOptions) error
-	Delete(value interface{}, conds ...interface{}) Client
-}
-
-type Basic interface {
 	Model(value interface{}) Client
 	Where(query interface{}, args ...interface{}) Client
 	Limit(limit int) Client
@@ -58,24 +50,30 @@ type Basic interface {
 	Order(value interface{}) Client
 	Table(name string, args ...interface{}) Client
 	Raw(sql string, values ...interface{}) Client
-	RowsAffected() int64
+	Joins(sql string, args ...interface{}) Client
 	Preload(sql string, args ...interface{}) Client
 	Error() error
+	RowsAffected() int64
+	Select(query interface{}, args ...interface{}) Client
+	DB() *gorm.DB
+	Transaction(fc func(tx Client) error, opts ...*sql.TxOptions) error
+	Group(name string) Client
+	Check() (ok bool)
 }
 
-// Client
-// @Description: ORM client 接口 ，底层可以替换实现
-type Client interface {
-	DriverMetaOperator
-	AdvanceQuery
-	Create
-	Query
-	Update
-	Basic
+func InitOfficial() error {
+	configs := readConfigs(postgresConfigKey)
+	for _, config := range configs {
+		err := NewOrmClient(config)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func Init() error {
-	configs := readConfigs()
+func Init(demoServer bool) error {
+	configs := readConfigs(postgresConfigKey)
 	for _, config := range configs {
 		err := NewOrmClient(config)
 		if err != nil {
@@ -90,7 +88,12 @@ func NewOrmClient(config *Config) (err error) {
 		config.DBClientName = defaultDBClientName
 	}
 
-	client, err := NewGormClientProxy(*config)
+	var client Client
+	if config.SourceConfig.Type == HiveSourceType {
+		client, err = NewHiveClientProxy(*config)
+	} else {
+		client, err = NewGormClientProxy(*config)
+	}
 	if err != nil {
 		return err
 	}
@@ -128,6 +131,10 @@ func GetClientByClientName(clientName string) Client {
 }
 
 func getClientByName(ctx context.Context, clientName string) Client {
+	gCtx, ok := ctx.(*gin.Context)
+	if ok {
+		ctx = gCtx.Request.Context()
+	}
 	value := ctx.Value(dbContextKey)
 	if value == nil {
 		return nil

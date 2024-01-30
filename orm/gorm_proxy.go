@@ -43,11 +43,11 @@ func (clientProxy *GormClientProxy) GetTables(schemaName string) ([]TableMeta, e
 	return clientProxy.driverOperator.GetTables(schemaName)
 }
 
-func (clientProxy *GormClientProxy) GetColumnNames(tableName, schemaName string) ([]string, error) {
+func (clientProxy *GormClientProxy) GetColumnNames(tableName string) ([]string, error) {
 	if clientProxy.driverOperator == nil {
 		return nil, errors.New("driver not support get db metas")
 	}
-	return clientProxy.driverOperator.GetColumnNames(tableName, schemaName)
+	return clientProxy.driverOperator.GetColumnNames(tableName)
 }
 
 func (clientProxy *GormClientProxy) GetColumns(tableName, schemaName string) ([]ColumnMeta, error) {
@@ -73,9 +73,9 @@ func (clientProxy *GormClientProxy) JoinQueryTablesByCursor(joinQueryParams []Jo
 	return c.advanceQuery.JoinQueryTablesByCursor(joinQueryParams, batchSize, fc)
 }
 
-func (clientProxy *GormClientProxy) QueryByCursor(tableName string, batchSize int, selectFields []string, orderBy []string, fc func(data []map[string]interface{})) error {
+func (clientProxy *GormClientProxy) QueryByCursor(tableName string, batchSize int, selectFields []string, where string, orderBy []string, fc func(data []map[string]interface{})) (map[string]interface{}, error) {
 	c := clientProxy.clone()
-	return c.advanceQuery.QueryByCursor(tableName, batchSize, selectFields, orderBy, fc)
+	return c.advanceQuery.QueryByCursor(tableName, batchSize, selectFields, where, orderBy, fc)
 }
 
 func NewGormClientProxy(config Config) (Client, error) {
@@ -374,4 +374,10 @@ func (clientProxy *GormClientProxy) Transaction(fc func(tx Client) error, opts .
 		err := fc(c)
 		return err
 	}, opts...)
+}
+
+func (clientProxy *GormClientProxy) Group(name string) Client {
+	c := clientProxy.clone()
+	c.setDB(c.db.Group(name))
+	return c
 }

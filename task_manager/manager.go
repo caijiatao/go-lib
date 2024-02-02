@@ -2,6 +2,7 @@ package task_manager
 
 import (
 	"context"
+	"fmt"
 	"github.com/pkg/errors"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"golib/concurrency"
@@ -21,11 +22,17 @@ var (
 	taskPreemptFail = errors.New("task preempt fail")
 )
 
+var (
+	scanTaskDelayTime = time.Minute
+)
+
 var globalTaskManager *TaskManager
 var defaultTaskManagerInitOnce sync.Once
 
-func Init() {
+func Init(prefix string) {
 	defaultTaskManagerInitOnce.Do(func() {
+		taskKeyPrefix = prefix
+		logger.Infof("task manager taskKeyPrefix: %s", taskKeyPrefix)
 		globalTaskManager = NewTaskManager()
 	})
 }
@@ -47,18 +54,10 @@ func NewTaskManager() *TaskManager {
 
 	manager.wg.Add(1)
 	gopool.Go(func() {
-		err := manager.watchTasks(ctx)
-		if err != nil {
-			logger.CtxErrorf(ctx, "watchTasks err: %+v", err)
-			return
-		}
+		manager.watchTasks(ctx)
 	})
 	gopool.Go(func() {
-		err := manager.scanTasks(ctx)
-		if err != nil {
-			logger.CtxErrorf(ctx, "scanTasks err: %+v", err)
-			return
-		}
+		manager.scanTasks(ctx)
 	})
 	manager.wg.Wait()
 
@@ -95,52 +94,60 @@ func (m *TaskManager) getHandler(handlerName TaskHandlerName) *TaskHandler {
 	return handler
 }
 
-func (m *TaskManager) handleTask(ctx context.Context, k, v []byte, kvVersion int64) {
+func (m *TaskManager) handleTask(ctx context.Context, k, v []byte, kvVersion int64) error {
 	key := taskKey(k)
 	handler := m.getHandler(key.getHandlerName())
 	if handler == nil {
-		logger.Errorf("handler not found, handlerName: %s", key.getHandlerName())
-		return
+		return errors.New(fmt.Sprintf("handler not found, handlerName: %s", key.getHandlerName()))
 	}
 
-	task := decodeTask(string(v), kvVersion, handler.ParamsType)
-	if task == nil {
-		logger.CtxInfof(ctx, "decodeTask fail, value:%s", v)
-		return
+	task := &Task{}
+	err := task.decode(string(v))
+	if err != nil {
+		return err
 	}
+	task.TaskVersion = kvVersion
 	handler.handleTask(ctx, task)
+	return nil
 }
 
-func (m *TaskManager) watchTasks(ctx context.Context) (err error) {
+func (m *TaskManager) watchTasks(ctx context.Context) {
 	wch := etcd_helper.Watch(ctx, taskKeyPrefix, clientv3.WithPrefix())
+	logger.Infof("watchTasks prefix: %s", taskKeyPrefix)
 	m.wg.Done()
 	for wc := range wch {
 		for _, event := range wc.Events {
 			if event.Type == clientv3.EventTypePut {
-				m.handleTask(ctx, event.Kv.Key, event.Kv.Value, event.Kv.Version)
+				err := m.handleTask(ctx, event.Kv.Key, event.Kv.Value, event.Kv.Version)
+				if err != nil {
+					logger.CtxErrorf(ctx, "watchTasks handleTask err: %+v", err)
+				}
 			}
 		}
 	}
-	return nil
+	return
 }
 
-func (m *TaskManager) scanTasks(ctx context.Context) error {
+func (m *TaskManager) scanTasks(ctx context.Context) {
 	for {
-		afterTime := time.After(time.Minute)
+		afterTime := time.After(scanTaskDelayTime)
 		select {
 		case <-afterTime:
 			logger.CtxInfof(ctx, "scanTasks start")
 		case <-ctx.Done():
 			logger.CtxInfof(ctx, "scanTasks ctx.Done")
-			return nil
+			return
 		}
 		getResponse, err := etcd_helper.Get(ctx, taskKeyPrefix, clientv3.WithPrefix())
 		if err != nil {
 			continue
 		}
-		logger.CtxInfof(ctx, "scanTasks len(getResponse.Kvs): %d", len(getResponse.Kvs))
+		logger.CtxInfof(ctx, "scanTasks len(getResponse.Kvs): %d, task key prefix:%s", len(getResponse.Kvs), taskKeyPrefix)
 		for _, kv := range getResponse.Kvs {
-			m.handleTask(ctx, kv.Key, kv.Value, kv.Version)
+			err = m.handleTask(ctx, kv.Key, kv.Value, kv.Version)
+			if err != nil {
+				logger.CtxErrorf(ctx, "scanTasks handleTask err: %+v", err)
+			}
 		}
 	}
 }

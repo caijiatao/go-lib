@@ -1,32 +1,28 @@
 package task_manager
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"strings"
 	"time"
 )
 
-const (
+var (
 	taskKeyPrefix = "/task_manager"
 )
 
 type taskKey string
-
-const (
-	taskKeyPrefixIndex = iota + 1
-	taskKeyHandleNameIndex
-)
 
 func (k taskKey) String() string {
 	return string(k)
 }
 
 func (k taskKey) getHandlerName() TaskHandlerName {
-	values := strings.Split(string(k), "/")
-	if len(values) > taskKeyHandleNameIndex {
-		return TaskHandlerName(values[taskKeyHandleNameIndex])
+	newKey := strings.Replace(string(k), taskKeyPrefix+"/", "", 1)
+	values := strings.Split(newKey, "/")
+	if len(values) > 0 {
+		return TaskHandlerName(values[0])
 	}
 	return ""
 }
@@ -39,14 +35,18 @@ const (
 	running
 	success
 	fail
+	del
 )
 
 type Task struct {
-	TaskId      string // task id 业务方必须保持在同个Handler唯一
+	ctx       context.Context
+	cancelCtx func()
+
+	TaskId      string
 	HandlerName TaskHandlerName
 	Params      interface{} // 任务参数
 
-	Status      TaskStatus // 任务状态
+	Status      TaskStatus
 	ExecCount   int
 	TaskVersion int64  // 任务版本号，用于任务抢占
 	TraceId     string // 日志id
@@ -73,16 +73,12 @@ func NewTask(taskId string, handlerName TaskHandlerName, params interface{}) *Ta
 	}
 }
 
-func decodeTask(taskString string, taskVersion int64, paramType reflect.Type) *Task {
-	t := &Task{
-		Params: reflect.New(paramType).Interface(),
-	}
-	err := json.Unmarshal([]byte(taskString), t)
+func (t *Task) decode(taskString string) error {
+	err := json.Unmarshal([]byte(taskString), &t)
 	if err != nil {
-		return nil
+		return err
 	}
-	t.TaskVersion = taskVersion
-	return t
+	return nil
 }
 
 func (t *Task) encode() string {
@@ -104,9 +100,8 @@ func (t *Task) markRunning() {
 	t.Status = running
 }
 
-func (t *Task) markPending(delayTime time.Duration) {
+func (t *Task) markPending() {
 	t.LastUpdateTime = time.Now()
-	t.NextExecuteTime = time.Now().Add(delayTime)
 	t.Status = pending
 }
 
@@ -118,4 +113,9 @@ func (t *Task) markFail() {
 func (t *Task) markSuccess() {
 	t.LastUpdateTime = time.Now()
 	t.Status = success
+}
+
+func (t *Task) markDel() {
+	t.LastUpdateTime = time.Now()
+	t.Status = del
 }

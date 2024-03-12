@@ -141,16 +141,8 @@
   "msg": "success",
   "data": [
     {
-      "tag_id": "标签ID",
-      "tag_name": "标签名称",
-      "tag_desc": "标签描述",
-      "tag_columns": [
-        {
-          "column_id": "字段ID",
-          "column_name": "字段名称",
-          "column_type": "字段类型"
-        }
-      ]
+      "table_id": 1,
+      "table_name": "标签名称"
     }
   ]
 }
@@ -162,37 +154,38 @@
 ### request
 ```json
 {
-  "cate_id": "分类ID",
-  "private_tags": {
-    "tag_id": "标签ID",
-    "tag_columns": [
-      {
-        "column_id": "字段ID",
-        "column_value": "字段取值",
-        "column_type": "字段类型"
-      }
-    ]
-  },
-  "public_tags": {
-    "tag_id": "标签ID",
-    "tag_columns": [
-      {
-        "column_id": "字段ID",
-        "column_value": "字段取值",
-        "column_type": "字段类型"
-      }
-    ]
-  },
-  "user_tags": {
-    "tag_id": "标签ID",
-    "tag_columns": [
-      {
-        "column_id": "字段ID",
-        "column_value": "字段取值",
-        "column_type": "字段类型"
-      }
-    ]
-  }
+  "category_id": 1,
+  "private_tables": [
+    {
+      "table_id": 1,
+      "columns": [
+        {
+          "id": 1,
+          "value": ["1","2"] # 多个枚举值则传入多个字符串
+        },
+        {
+          "id": 2,
+          "value": ["(1,2)"] # 多个范围则多传多个范围字符串
+        }
+      ]
+    }
+  ],
+  "public_tables": [
+    {
+      "table_id": 2,
+      "columns": [
+        {
+          "id": 4,
+          "value": ["1","2"]
+        }
+      ]
+    }
+  ],
+  "portrait_tables": [
+    {
+      "table_id": 2
+    }
+  ]
 }
 ```
 
@@ -282,5 +275,112 @@
 {
   "code": 0,
   "msg": "success"
+}
+```
+
+
+```json
+{
+  "parent_node_tag_list": [
+    {
+      "table_name": "dmp_tagfactory_detail_fmcg_crowd",
+      "filter": "label!='0'",
+      "field": "label,label2,label3"
+    },
+    {
+      "table_name": "dmp_tagfactory_detail_alipay_amt_level_n",
+      "filter": "alipay_amt_level>=0",
+      "field": "alipay_amt_level"
+    }
+  ],
+  "child_columns_set": [
+    {
+      "tag_name": "t1_label",
+      "tag_value": [
+        "资深白领",
+        "小镇青年",
+        "新锐白领",
+        "小镇中年",
+        "都市蓝领",
+        "GenZ",
+        "精致妈妈"
+      ],
+      "tag_type": "enumerate"
+    },
+    {
+      "tag_name": "t1_label2",
+      "tag_value": [
+        "资深白领",
+        "小镇青年",
+        "新锐白领",
+        "小镇中年",
+        "都市蓝领",
+        "GenZ",
+        "精致妈妈"
+      ],
+      "tag_type": "enumerate"
+    },
+    {
+      "tag_name": "t2_alipay_amt_level",
+      "tag_value": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "tag_type": "range"
+    }
+  ],
+  "portrait_table_list": [
+    {
+      "table_name": "dmp_tagfactory_detail_gprofile_gender_n",
+      "filter": "gender>=0",
+      "field": "gender"
+    },
+    {
+      "table_name": "dmp_tagfactory_detail_gprofile_age_n",
+      "filter": "age>0",
+      "field": "age"
+    },
+    {
+      "table_name": "dmp_tagfactory_detail_alipay_amt_level_n",
+      "filter": "alipay_amt_level>0",
+      "field": "alipay_amt_level"
+    }
+  ],
+  "parent_private_table_name": "dmp_tagfactory_similar_shop_behavior_s4_n",
+  "private_columns_set": [
+    {
+      "tag_name": "type",
+      "tag_value": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "tag_type": "range"
+    },
+    {
+      "tag_name": "level",
+      "tag_value": [
+        1,
+        2
+      ]
+    },
+    {
+      "tag_name": "period",
+      "tag_value": [
+        30
+      ]
+    }
+  ]
 }
 ```

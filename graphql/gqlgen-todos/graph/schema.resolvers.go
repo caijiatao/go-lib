@@ -30,6 +30,16 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 }
 
 // User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
+	for _, todo := range r.todos {
+		if todo.UserID == id {
+			return &model.User{ID: todo.UserID, Name: "user " + todo.UserID}, nil
+		}
+	}
+	return nil, nil
+}
+
+// User is the resolver for the user field.
 func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
 	return &model.User{ID: obj.UserID, Name: "user " + obj.UserID}, nil
 }

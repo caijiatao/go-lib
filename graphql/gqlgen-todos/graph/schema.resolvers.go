@@ -24,6 +24,16 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 	return todo, nil
 }
 
+// CreateTime is the resolver for the CreateTime field.
+func (r *orderResolver) CreateTime(ctx context.Context, obj *model.Order) (string, error) {
+	panic(fmt.Errorf("not implemented: CreateTime - CreateTime"))
+}
+
+// PaymentTime is the resolver for the PaymentTime field.
+func (r *orderResolver) PaymentTime(ctx context.Context, obj *model.Order) (string, error) {
+	panic(fmt.Errorf("not implemented: PaymentTime - PaymentTime"))
+}
+
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	return r.todos, nil
@@ -39,6 +49,24 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 	return nil, nil
 }
 
+// Products is the resolver for the products field.
+func (r *queryResolver) Products(ctx context.Context, productID *string) ([]*model.Product, error) {
+	if productID != nil {
+		return []*model.Product{
+			{
+				ProductId:   *productID,
+				ProductName: "product " + *productID,
+			},
+		}, nil
+	}
+	return []*model.Product{}, nil
+}
+
+// Orders is the resolver for the orders field.
+func (r *queryResolver) Orders(ctx context.Context) ([]*model.Order, error) {
+	panic(fmt.Errorf("not implemented: Orders - orders"))
+}
+
 // User is the resolver for the user field.
 func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
 	return &model.User{ID: obj.UserID, Name: "user " + obj.UserID}, nil
@@ -47,6 +75,9 @@ func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, 
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
+// Order returns OrderResolver implementation.
+func (r *Resolver) Order() OrderResolver { return &orderResolver{r} }
+
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
@@ -54,5 +85,6 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 func (r *Resolver) Todo() TodoResolver { return &todoResolver{r} }
 
 type mutationResolver struct{ *Resolver }
+type orderResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type todoResolver struct{ *Resolver }

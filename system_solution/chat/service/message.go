@@ -7,9 +7,17 @@ import (
 )
 
 type Message struct {
-	FromUser    int64
-	ToUser      int64
-	MessageBody string
+	FromUser    int64  `json:"from_user"`
+	ToUser      int64  `json:"to_user"`
+	MessageBody string `json:"message_body"`
+}
+
+func NewPushMessageSuccessResp() []byte {
+	return []byte(`{"status": "success"}`)
+}
+
+func NewPushMessageFailResp() []byte {
+	return []byte(`{"status": "fail"}`)
 }
 
 func CompressMessage(message string) ([]byte, error) {

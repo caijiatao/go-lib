@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"golib/libs/logger"
 	"sync"
 )
 
@@ -14,6 +15,15 @@ type Channel struct {
 
 func NewChannel(userId int64, conn *websocket.Conn, send chan []byte) *Channel {
 	return &Channel{userId: userId, conn: conn, send: send}
+}
+
+func (c *Channel) PushMessage(message *Message) error {
+	ms, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+	c.send <- ms
+	return nil
 }
 
 func (c *Channel) SendLoop() {
@@ -45,7 +55,12 @@ func (c *Channel) RecvLoop() {
 		m.FromUser = c.userId
 		m.ToUser = c.userId // 重新发给自己
 
-		ChannelManager().PushMessage(m)
+		err = ChatService().PushMessage(m)
+		var resp = NewPushMessageSuccessResp()
+		if err != nil {
+			resp = NewPushMessageFailResp()
+		}
+		_ = c.conn.WriteMessage(websocket.TextMessage, resp)
 	}
 }
 
@@ -80,18 +95,22 @@ func (m *manager) RemoveChannel(userId int64) {
 	delete(m.userId2Channel, userId)
 }
 
-func (m *manager) PushMessage(message *Message) {
+func (m *manager) GetChannel(userId int64) *Channel {
 	m.Lock()
-	channel, ok := m.userId2Channel[message.ToUser]
-	m.Unlock()
+	defer m.Unlock()
+	return m.userId2Channel[userId]
+}
 
-	if ok {
-		ms, err := json.Marshal(message)
+func (m *manager) PushMessage(message *Message) {
+	c := m.GetChannel(message.ToUser)
+	if c != nil {
+		err := c.PushMessage(message)
 		if err != nil {
-			return
+			logger.CtxErrorf(nil, "push message error: %v", err)
 		}
-		channel.send <- ms
+		return
 	}
+
 	// 用户没在本机，则转发到其他机器
 
 	// 用户没在线，则存储到数据库

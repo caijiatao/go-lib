@@ -1,8 +1,8 @@
 package lua_util
 
 import (
-	"airec-libs/logger"
 	"fmt"
+	"golib/libs/logger"
 )
 
 type LuaError struct {

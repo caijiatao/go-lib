@@ -1,6 +1,6 @@
 package mq_test_util
 
-import "airec_server/pkg/mq"
+import "golib/libs/mq"
 
 // InitTestKafka
 //

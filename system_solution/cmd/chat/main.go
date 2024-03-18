@@ -1,23 +1,12 @@
 package main
 
 import (
-	"flag"
-	"golib/system_solution/chat"
-	"log"
-	"net/http"
-	"time"
+	"github.com/gin-gonic/gin"
 )
 
-var addr = flag.String("addr", ":8080", "http service address")
-
 func main() {
-	chat.GetServer().RegisterRoutes()
-	server := &http.Server{
-		Addr:              *addr,
-		ReadHeaderTimeout: 3 * time.Second,
-	}
-	err := server.ListenAndServe()
+	err := App().Init(gin.Default()).Run()
 	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+		panic(err)
 	}
 }

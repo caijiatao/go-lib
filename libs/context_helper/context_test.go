@@ -1,10 +1,10 @@
 package context_helper
 
 import (
-	"airec-libs/etcd_helper"
-	"airec-libs/orm"
 	"context"
 	"github.com/stretchr/testify/assert"
+	"golib/libs/etcd_helper"
+	"golib/libs/orm"
 	"testing"
 )
 

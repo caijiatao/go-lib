@@ -1,7 +1,7 @@
 package outer
 
 import (
-	_ "golib/concurrency/golink/inner"
+	_ "golib/libs/concurrency/golink/inner"
 	_ "unsafe"
 )
 

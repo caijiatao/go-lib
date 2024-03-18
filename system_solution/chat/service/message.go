@@ -1,10 +1,16 @@
-package chat
+package service
 
 import (
 	"bytes"
 	"compress/zlib"
 	"io"
 )
+
+type Message struct {
+	FromUser    int64
+	ToUser      int64
+	MessageBody string
+}
 
 func CompressMessage(message string) ([]byte, error) {
 	var compressed bytes.Buffer

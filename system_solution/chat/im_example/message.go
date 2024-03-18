@@ -1,4 +1,4 @@
-package im
+package im_example
 
 type Message struct {
 	Key string

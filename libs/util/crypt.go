@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"github.com/pkg/errors"
 )
@@ -76,4 +78,11 @@ func safeCryptBlocks(mode cipher.BlockMode, dst, src []byte) (err error) {
 	}()
 	mode.CryptBlocks(dst, src)
 	return nil
+}
+
+func EncryptPassword(pwd, PasswordSalt string) string {
+	m := md5.New()
+	pwd, _ = Encrypt(pwd)
+	m.Write([]byte(pwd + PasswordSalt))
+	return hex.EncodeToString(m.Sum(nil))
 }

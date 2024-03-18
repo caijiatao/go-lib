@@ -3,14 +3,14 @@ package lock
 import (
 	"context"
 	"github.com/stretchr/testify/assert"
-	"golib/etcd_helper"
+	"golib/libs/etcd_helper"
 	"golib/libs/logger"
 	"testing"
 	"time"
 )
 
 func TestMain(m *testing.M) {
-	etcd_helper.InitTestClient()
+	etcd_helper.InitTestSuite()
 	m.Run()
 }
 

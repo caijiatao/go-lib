@@ -4,12 +4,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"golib/libs/gin_helper"
 	"golib/libs/logger"
+	controller2 "golib/system_solution/chat/controller"
+	"golib/system_solution/user/controller"
 	"sync"
 )
 
 type Application struct {
-	Engine     *gin.Engine
-	Controller *ApplicationController
+	Engine         *gin.Engine
+	Controller     *ApplicationController
+	ChatController *controller2.Controller
+	user           *controller.UserController
 }
 
 type ApplicationController struct {
@@ -46,7 +50,10 @@ func (app *Application) InitMiddleware() *Application {
 }
 
 func (app *Application) Run() error {
-	gin_helper.Init()
+	err := gin_helper.Init()
+	if err != nil {
+		return err
+	}
 	serverConfig := gin_helper.GetServerConfig()
 	return app.Engine.Run(":" + serverConfig.HttpPort)
 }

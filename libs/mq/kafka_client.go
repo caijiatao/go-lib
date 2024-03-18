@@ -1,10 +1,10 @@
 package mq
 
 import (
-	"airec_server/pkg/logger"
 	"context"
 	"encoding/json"
 	"github.com/Shopify/sarama"
+	"golib/libs/logger"
 )
 
 type KafkaClient struct {

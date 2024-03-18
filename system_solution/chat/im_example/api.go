@@ -1,4 +1,4 @@
-package im
+package im_example
 
 import (
 	"golib/libs/logger"

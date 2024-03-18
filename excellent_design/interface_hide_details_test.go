@@ -1,7 +1,7 @@
 package excellent_design
 
 import (
-	"golib/concurrency"
+	"golib/libs/concurrency"
 	"testing"
 	"time"
 )

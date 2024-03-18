@@ -18,6 +18,7 @@ type UserController struct{}
 
 func (uc *UserController) RegisterRoutes(r gin.IRouter) {
 	r = r.Group("/api/user")
+	r.Use(gin_helper.CorsMiddleware())
 	r.Use(limiter.IpLimiter())
 	r.POST("/sms", uc.SendSms)
 	r.POST("/sms/verify", uc.VerifySms)
@@ -99,36 +100,36 @@ func (uc *UserController) Login(ctx *gin.Context) {
 		return
 	}
 
-	newDevice, err := uc.IsNewDevice(ctx, req.PhoneNumber)
-	if err != nil {
-		ctx.Error(err)
-		return
-	}
-	if newDevice && req.SmsCode == "" {
-		ctx.Error(errors.New("该设备首次登录，请进行验证码验证"))
-		return
-	}
-	ok := uc.VerifyPhoneNumber(req.PhoneNumber)
-	if !ok {
-		ctx.Error(errors.New("请输入正确的手机号码"))
-		return
-	}
-	if req.Password == "" && req.SmsCode == "" {
-		ctx.Error(errors.New("请输入密码或者验证码"))
-		return
-	}
-	if req.Password != "" {
-		req.Password, err = util.Decrypt(req.Password)
-		if err != nil {
-			ctx.Error(err)
-			return
-		}
-		if !uc.VerifyPwd(req.Password) {
-			ctx.Error(errors.New("密码不合法"))
-			return
-		}
-	}
-	rsp, err := service.AuthService().Login(ctx, req, false)
+	//newDevice, err := uc.IsNewDevice(ctx, req.PhoneNumber)
+	//if err != nil {
+	//	ctx.Error(err)
+	//	return
+	//}
+	//if newDevice && req.SmsCode == "" {
+	//	ctx.Error(errors.New("该设备首次登录，请进行验证码验证"))
+	//	return
+	//}
+	//ok := uc.VerifyPhoneNumber(req.PhoneNumber)
+	//if !ok {
+	//	ctx.Error(errors.New("请输入正确的手机号码"))
+	//	return
+	//}
+	//if req.Password == "" && req.SmsCode == "" {
+	//	ctx.Error(errors.New("请输入密码或者验证码"))
+	//	return
+	//}
+	//if req.Password != "" {
+	//	req.Password, err = util.Decrypt(req.Password)
+	//	if err != nil {
+	//		ctx.Error(err)
+	//		return
+	//	}
+	//	if !uc.VerifyPwd(req.Password) {
+	//		ctx.Error(errors.New("密码不合法"))
+	//		return
+	//	}
+	//}
+	rsp, err := service.AuthService().Login(ctx, req)
 	if err != nil {
 		ctx.Error(err)
 		return

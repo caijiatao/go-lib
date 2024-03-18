@@ -103,7 +103,18 @@ func (self *authService) IsNewUser(ctx *gin.Context, phoneNumber string) (bool, 
 	return false, nil
 }
 
-func (self *authService) Login(ctx *gin.Context, req define.LoginReq, isAdminLogin bool) (*define.LoginRsp, error) {
+func (self *authService) MockLogin() (*define.LoginRsp, error) {
+	return &define.LoginRsp{
+		ID:          rand.Int63(),
+		PhoneNumber: "12345678901",
+		NickName:    "mock",
+		IsAdmin:     true,
+		Token:       "123456",
+	}, nil
+}
+
+func (self *authService) Login(ctx *gin.Context, req define.LoginReq) (*define.LoginRsp, error) {
+	return self.MockLogin()
 	// 校验密码
 	if req.Password != "" && req.SmsCode == "" {
 		err := self.VerfiyAccountPwd(ctx, req)
@@ -117,7 +128,7 @@ func (self *authService) Login(ctx *gin.Context, req define.LoginReq, isAdminLog
 	}
 	user, err := dao.UserDao().GetUserByUser(ctx, *modelUser)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound && req.SmsCode != "" && req.Password != "" && !isAdminLogin {
+		if err == gorm.ErrRecordNotFound && req.SmsCode != "" && req.Password != "" {
 			// 未找到账号 && 验证码情况下新建账号
 			user, err = self.Register(ctx, req)
 			if err != nil {
@@ -133,13 +144,6 @@ func (self *authService) Login(ctx *gin.Context, req define.LoginReq, isAdminLog
 	if err != nil {
 		logger.Errorf("DoLogin fail ,reqID:%s ,err:%s", logger.CtxTraceID(ctx), err.Error())
 		return nil, gin_helper.INNER_ERROR
-	}
-	if !isAdminLogin {
-		err = self.AddUserDevice(ctx, user.ID)
-		if err != nil {
-			logger.Errorf("AddUserDevice fail ,reqID:%s ,err:%s", logger.CtxTraceID(ctx), err.Error())
-			return nil, err
-		}
 	}
 
 	return &define.LoginRsp{

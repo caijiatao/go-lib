@@ -4,19 +4,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"golib/libs/gin_helper"
 	"golib/libs/logger"
-	controller2 "golib/system_solution/chat/controller"
+	chatController "golib/system_solution/chat/controller"
 	"golib/system_solution/user/controller"
 	"sync"
 )
 
 type Application struct {
-	Engine         *gin.Engine
-	Controller     *ApplicationController
-	ChatController *controller2.Controller
-	user           *controller.UserController
+	Engine     *gin.Engine
+	Controller *ApplicationController
 }
 
 type ApplicationController struct {
+	Chat *chatController.Controller
+	User *controller.UserController
 }
 
 var application *Application

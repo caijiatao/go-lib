@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	im2 "golib/system_solution/chat/im"
+	"golib/system_solution/chat/im_example"
 	"log"
 	"net/http"
 	"time"
@@ -10,7 +10,7 @@ import (
 
 func watchChange(w http.ResponseWriter, r *http.Request) {
 	key := "test"
-	err := im2.Register(w, r, key)
+	err := im_example.Register(w, r, key)
 	if err != nil {
 		return
 	}
@@ -19,7 +19,7 @@ func watchChange(w http.ResponseWriter, r *http.Request) {
 			after := time.After(time.Second)
 			select {
 			case <-after:
-				im2.PushMessage(im2.NewMessage(key, []byte("test msg")))
+				im_example.PushMessage(im_example.NewMessage(key, []byte("test msg")))
 			}
 		}
 	}()

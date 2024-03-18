@@ -1,10 +1,10 @@
 package sms
 
 import (
-	"airec-libs/logger"
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	dysmsapi20170525 "github.com/alibabacloud-go/dysmsapi-20170525/v3/client"
 	"github.com/pkg/errors"
+	"golib/libs/logger"
 	"sync"
 )
 

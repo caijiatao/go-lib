@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const AesKey = "SICS-AIREC-AUTHE"
+const AesKey = "AUTHE"
 
 // Encrypt 使用 AES 加密数据
 func Encrypt(plainText string) (string, error) {

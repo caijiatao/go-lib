@@ -235,7 +235,6 @@ func (self *authService) Register(ctx *gin.Context, req define.LoginReq) (*model
 		Password:    util.EncryptPassword(req.Password, define.PasswordSalt),
 		CreateTime:  time.Now(),
 		UpdateTime:  time.Now(),
-		ExpireTime:  time.Now().Add(7 * 24 * time.Hour),
 	}
 	_, err := dao.UserDao().CreateUser(ctx, user)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"golib/libs/logger"
+	"golib/system_solution/chat/model"
 	"sync"
 )
 
@@ -17,7 +18,7 @@ func NewChannel(userId int64, conn *websocket.Conn, send chan []byte) *Channel {
 	return &Channel{userId: userId, conn: conn, send: send}
 }
 
-func (c *Channel) PushMessage(message *Message) error {
+func (c *Channel) PushMessage(message *model.Message) error {
 	ms, err := json.Marshal(message)
 	if err != nil {
 		return err
@@ -47,20 +48,13 @@ func (c *Channel) RecvLoop() {
 		if err != nil {
 			return
 		}
-		m := &Message{}
+		m := &model.Message{}
 		err = json.Unmarshal(message, m)
 		if err != nil {
 			return
 		}
 		m.FromUser = c.userId
 		m.ToUser = c.userId // 重新发给自己
-
-		err = ChatService().PushMessage(m)
-		var resp = NewPushMessageSuccessResp()
-		if err != nil {
-			resp = NewPushMessageFailResp()
-		}
-		_ = c.conn.WriteMessage(websocket.TextMessage, resp)
 	}
 }
 
@@ -101,7 +95,7 @@ func (m *manager) GetChannel(userId int64) *Channel {
 	return m.userId2Channel[userId]
 }
 
-func (m *manager) PushMessage(message *Message) {
+func (m *manager) PushMessage(message *model.Message) {
 	c := m.GetChannel(message.ToUser)
 	if c != nil {
 		err := c.PushMessage(message)

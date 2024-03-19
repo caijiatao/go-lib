@@ -1,23 +1,26 @@
-package service
+package model
 
 import (
 	"bytes"
 	"compress/zlib"
 	"io"
+	"time"
 )
 
 type Message struct {
-	FromUser    int64  `json:"from_user"`
-	ToUser      int64  `json:"to_user"`
-	MessageBody string `json:"message_body"`
+	Id         int64     `json:"id" gorm:"id"`
+	FromUser   int64     `json:"from_user" gorm:"from_user"`
+	ToUser     int64     `json:"to_user" gorm:"to_user"`
+	Content    string    `json:"content" gorm:"content"`
+	CreateTime time.Time `json:"create_time" gorm:"create_time"`
 }
 
-func NewPushMessageSuccessResp() []byte {
-	return []byte(`{"status": "success"}`)
-}
-
-func NewPushMessageFailResp() []byte {
-	return []byte(`{"status": "fail"}`)
+type GroupMessage struct {
+	Id         int64     `json:"id" gorm:"id"`
+	GroupId    int64     `json:"group_id" gorm:"group_id"`
+	FromUser   int64     `json:"from_user" gorm:"from_user"`
+	Content    string    `json:"content" gorm:"content"`
+	CreateTime time.Time `json:"create_time" gorm:"create_time"`
 }
 
 func CompressMessage(message string) ([]byte, error) {

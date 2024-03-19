@@ -1,6 +1,7 @@
 package service
 
 import (
+	"golib/system_solution/chat/model"
 	"sync"
 )
 
@@ -18,6 +19,6 @@ func ChatService() *chatService {
 	return chatServiceInstance
 }
 
-func (s *chatService) PushMessage(message *Message) error {
+func (s *chatService) PushMessage(message *model.Message) error {
 	return nil
 }

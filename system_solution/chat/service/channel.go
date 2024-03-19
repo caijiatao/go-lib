@@ -6,6 +6,7 @@ import (
 	"golib/libs/logger"
 	"golib/system_solution/chat/model"
 	"sync"
+	"time"
 )
 
 type Channel struct {
@@ -55,6 +56,40 @@ func (c *Channel) RecvLoop() {
 		}
 		m.FromUser = c.userId
 		m.ToUser = c.userId // 重新发给自己
+	}
+}
+
+func (c *Channel) Close() error {
+	close(c.send)
+	err := c.conn.Close()
+	if err != nil {
+		logger.CtxErrorf(nil, "close connection error: %v", err)
+		return err
+	}
+	return nil
+}
+
+// KeepAlive
+//
+//	@Description: 保证该链接一直处于在线状态
+func (c *Channel) KeepAlive() {
+	lastResponse := time.Now()
+	c.conn.SetPongHandler(func(msg string) error {
+		lastResponse = time.Now()
+		return nil
+	})
+
+	timeout := time.Second
+	for {
+		err := c.conn.WriteMessage(websocket.PingMessage, []byte("keepalive"))
+		if err != nil {
+			return
+		}
+		time.Sleep(timeout / 2)
+		if time.Since(lastResponse) > timeout {
+			c.Close()
+			return
+		}
 	}
 }
 

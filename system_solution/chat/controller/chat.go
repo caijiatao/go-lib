@@ -64,8 +64,8 @@ func (c *Controller) Chat(ctx *gin.Context) {
 	userIDInt, err := strconv.ParseInt(userID, 10, 64)
 	channel := service.NewChannel(userIDInt, conn, make(chan []byte, 256))
 
+	go channel.KeepAlive()
 	go channel.SendLoop()
-
 	go channel.RecvLoop()
 
 	service.ChannelManager().AddChannel(channel)

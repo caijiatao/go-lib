@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "api/api";
 
-service ApiServer {
+service ChatApi {
   rpc UserDetail (UserDetailRequest) returns (UserDetailReply) {}
 }
 

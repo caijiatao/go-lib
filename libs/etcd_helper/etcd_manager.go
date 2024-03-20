@@ -40,3 +40,7 @@ func (em *etcdManager) get(clientName string) *EtcdClient {
 func GetDefaultClient() *EtcdClient {
 	return globalManager.get(defaultClientName)
 }
+
+func GetClientByName(clientName string) *EtcdClient {
+	return globalManager.get(clientName)
+}

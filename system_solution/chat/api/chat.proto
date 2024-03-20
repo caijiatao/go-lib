@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "chat/chat";
+
+service Chat {
+  rpc PushMessage (PushMessageRequest) returns (PushMessageReply) {}
+}
+
+message PushMessageRequest {
+  int64 userId = 1;
+  string message = 2;
+}
+
+message PushMessageReply {
+  string message = 1;
+}

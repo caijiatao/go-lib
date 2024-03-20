@@ -55,6 +55,6 @@ func (app *Application) Run() error {
 		return err
 	}
 	serverConfig := gin_helper.GetServerConfig()
-	serverConfig.HttpPort = "13177"
+	serverConfig.HttpPort = "13178"
 	return app.Engine.Run(":" + serverConfig.HttpPort)
 }

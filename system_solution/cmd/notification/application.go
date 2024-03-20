@@ -4,8 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"golib/libs/gin_helper"
 	"golib/libs/logger"
-	chatController "golib/system_solution/chat/controller"
-	"golib/system_solution/user/controller"
 	"sync"
 )
 
@@ -15,8 +13,6 @@ type Application struct {
 }
 
 type ApplicationController struct {
-	Chat *chatController.Controller
-	User *controller.UserController
 }
 
 var application *Application
@@ -55,6 +51,5 @@ func (app *Application) Run() error {
 		return err
 	}
 	serverConfig := gin_helper.GetServerConfig()
-	serverConfig.HttpPort = "13177"
 	return app.Engine.Run(":" + serverConfig.HttpPort)
 }

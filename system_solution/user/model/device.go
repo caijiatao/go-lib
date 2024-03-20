@@ -15,5 +15,5 @@ type UserDevice struct {
 }
 
 func (self *UserDevice) TableName() string {
-	return "shensuanzi.diviner_user_device"
+	return "user_device"
 }

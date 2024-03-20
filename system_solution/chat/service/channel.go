@@ -1,8 +1,12 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"golib/libs/logger"
+	"golib/libs/orm"
+	"golib/system_solution/chat/model"
 	"sync"
 )
 
@@ -14,6 +18,15 @@ type Channel struct {
 
 func NewChannel(userId int64, conn *websocket.Conn, send chan []byte) *Channel {
 	return &Channel{userId: userId, conn: conn, send: send}
+}
+
+func (c *Channel) PushMessage(message *model.Message) error {
+	ms, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+	c.send <- ms
+	return nil
 }
 
 func (c *Channel) SendLoop() {
@@ -33,20 +46,38 @@ func (c *Channel) SendLoop() {
 
 func (c *Channel) RecvLoop() {
 	for {
-		_, message, err := c.conn.ReadMessage()
+		messageType, message, err := c.conn.ReadMessage()
 		if err != nil {
 			return
 		}
-		m := &Message{}
-		err = json.Unmarshal(message, m)
+		switch messageType {
+		case websocket.PingMessage:
+			err = c.conn.WriteMessage(websocket.PongMessage, nil)
+		case websocket.TextMessage:
+			m := &model.Message{}
+			err = json.Unmarshal(message, m)
+			if err != nil {
+				return
+			}
+			m.FromUser = c.userId
+			m.ToUser = c.userId // 重新发给自己
+		}
 		if err != nil {
+			_ = c.Close()
 			return
 		}
-		m.FromUser = c.userId
-		m.ToUser = c.userId // 重新发给自己
-
-		ChannelManager().PushMessage(m)
 	}
+}
+
+func (c *Channel) Close() error {
+	ChannelManager().RemoveChannel(c)
+	close(c.send)
+	err := c.conn.Close()
+	if err != nil {
+		logger.CtxErrorf(nil, "close connection error: %v", err)
+		return err
+	}
+	return nil
 }
 
 var (
@@ -64,34 +95,77 @@ func ChannelManager() *manager {
 }
 
 type manager struct {
-	sync.Mutex
+	sync.RWMutex
 	userId2Channel map[int64]*Channel
+
+	unregister chan *Channel
+	register   chan *Channel
+}
+
+func (m *manager) Run() {
+	go m.registerLoop()
+	go m.unregisterLoop()
+}
+
+func (m *manager) registerLoop() {
+	ctx := context.Background()
+	ctx = orm.BindContext(ctx)
+	for {
+		select {
+		case c, ok := <-m.register:
+			if !ok {
+				return
+			}
+			m.userId2Channel[c.userId] = c
+			err := ChatService().UserOnline(ctx, c.userId)
+			if err != nil {
+				logger.CtxErrorf(ctx, "user online error: %v", err)
+			}
+		}
+	}
+}
+
+func (m *manager) unregisterLoop() {
+	ctx := orm.BindContext(context.Background())
+	for {
+		select {
+		case c, ok := <-m.unregister:
+			if !ok {
+				return
+			}
+			delete(m.userId2Channel, c.userId)
+			err := ChatService().UserOffline(ctx, c.userId)
+			if err != nil {
+				logger.CtxErrorf(nil, "user offline error: %v", err)
+			}
+		}
+	}
 }
 
 func (m *manager) AddChannel(channel *Channel) {
-	m.Lock()
-	defer m.Unlock()
-	m.userId2Channel[channel.userId] = channel
+	m.register <- channel
 }
 
-func (m *manager) RemoveChannel(userId int64) {
-	m.Lock()
-	defer m.Unlock()
-	delete(m.userId2Channel, userId)
+func (m *manager) RemoveChannel(channel *Channel) {
+	m.unregister <- channel
 }
 
-func (m *manager) PushMessage(message *Message) {
-	m.Lock()
-	channel, ok := m.userId2Channel[message.ToUser]
-	m.Unlock()
+func (m *manager) GetChannel(userId int64) *Channel {
+	m.RLock()
+	defer m.RUnlock()
+	return m.userId2Channel[userId]
+}
 
-	if ok {
-		ms, err := json.Marshal(message)
+func (m *manager) PushMessage(message *model.Message) {
+	c := m.GetChannel(message.ToUser)
+	if c != nil {
+		err := c.PushMessage(message)
 		if err != nil {
-			return
+			logger.CtxErrorf(nil, "push message error: %v", err)
 		}
-		channel.send <- ms
+		return
 	}
+
 	// 用户没在本机，则转发到其他机器
 
 	// 用户没在线，则存储到数据库

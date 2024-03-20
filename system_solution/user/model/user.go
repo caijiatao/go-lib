@@ -14,9 +14,8 @@ type User struct {
 	LockTime    time.Time `gorm:"column:lock_time"`
 	CreateTime  time.Time `gorm:"column:create_time"`
 	UpdateTime  time.Time `gorm:"column:update_time"`
-	ExpireTime  time.Time `gorm:"column:expire_time"`
 }
 
 func (user *User) TableName() string {
-	return "shensuanzi.diviner_user"
+	return "user"
 }

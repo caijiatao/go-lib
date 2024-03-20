@@ -4,6 +4,7 @@ import (
 	"context"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"golib/libs/etcd_helper"
+	"golib/libs/logger"
 	"log"
 	"time"
 )
@@ -62,18 +63,18 @@ func (s *ServiceRegister) putKeyWithLease(lease int64) error {
 		return err
 	}
 	s.leaseID = resp.ID
-	log.Println(s.leaseID)
+	logger.Infof("%d", s.leaseID)
 	s.keepAliveChan = leaseRespChan
-	log.Printf("Put key:%s  val:%s  success!", s.key, s.val)
+	logger.Infof("Put key:%s  val:%s  success!", s.key, s.val)
 	return nil
 }
 
 // ListenLeaseRespChan 监听 续租情况
 func (s *ServiceRegister) ListenLeaseRespChan() {
 	for leaseKeepResp := range s.keepAliveChan {
-		log.Println("续约成功", leaseKeepResp)
+		logger.Infof("续约成功", leaseKeepResp)
 	}
-	log.Println("关闭续租")
+	logger.Infof("关闭续租")
 }
 
 // Close 注销服务
@@ -82,6 +83,6 @@ func (s *ServiceRegister) Close() error {
 	if _, err := etcd_helper.GetClientByName(namingETCDClientKey).Revoke(context.Background(), s.leaseID); err != nil {
 		return err
 	}
-	log.Println("撤销租约")
+	logger.Infof("撤销租约")
 	return etcd_helper.GetClientByName(namingETCDClientKey).Close()
 }

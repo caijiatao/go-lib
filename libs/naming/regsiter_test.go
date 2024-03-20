@@ -3,6 +3,7 @@ package naming
 import (
 	"log"
 	"testing"
+	"time"
 )
 
 func TestRegister(t *testing.T) {
@@ -14,7 +15,7 @@ func TestRegister(t *testing.T) {
 	//监听续租相应chan
 	go ser.ListenLeaseRespChan()
 	select {
-	// case <-time.After(20 * time.Second):
-	// 	ser.Close()
+	case <-time.After(20 * time.Second):
+		ser.Close()
 	}
 }

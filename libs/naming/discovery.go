@@ -5,6 +5,7 @@ import (
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"golib/libs/etcd_helper"
+	"golib/libs/logger"
 	"log"
 	"sync"
 	"time"
@@ -53,7 +54,7 @@ func (s *ServiceDiscovery) WatchService(prefix string) error {
 // watcher 监听前缀
 func (s *ServiceDiscovery) watcher(prefix string) {
 	rch := etcd_helper.GetClientByName(namingETCDClientKey).Watch(context.Background(), prefix, clientv3.WithPrefix())
-	log.Printf("watching prefix:%s now...", prefix)
+	logger.Infof("watching prefix:%s now...", prefix)
 	for wresp := range rch {
 		for _, ev := range wresp.Events {
 			switch ev.Type {

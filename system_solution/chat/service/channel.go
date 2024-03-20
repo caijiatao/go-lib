@@ -1,12 +1,13 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"golib/libs/logger"
+	"golib/libs/orm"
 	"golib/system_solution/chat/model"
 	"sync"
-	"time"
 )
 
 type Channel struct {
@@ -45,21 +46,31 @@ func (c *Channel) SendLoop() {
 
 func (c *Channel) RecvLoop() {
 	for {
-		_, message, err := c.conn.ReadMessage()
+		messageType, message, err := c.conn.ReadMessage()
 		if err != nil {
 			return
 		}
-		m := &model.Message{}
-		err = json.Unmarshal(message, m)
+		switch messageType {
+		case websocket.PingMessage:
+			err = c.conn.WriteMessage(websocket.PongMessage, nil)
+		case websocket.TextMessage:
+			m := &model.Message{}
+			err = json.Unmarshal(message, m)
+			if err != nil {
+				return
+			}
+			m.FromUser = c.userId
+			m.ToUser = c.userId // 重新发给自己
+		}
 		if err != nil {
+			_ = c.Close()
 			return
 		}
-		m.FromUser = c.userId
-		m.ToUser = c.userId // 重新发给自己
 	}
 }
 
 func (c *Channel) Close() error {
+	ChannelManager().RemoveChannel(c)
 	close(c.send)
 	err := c.conn.Close()
 	if err != nil {
@@ -67,30 +78,6 @@ func (c *Channel) Close() error {
 		return err
 	}
 	return nil
-}
-
-// KeepAlive
-//
-//	@Description: 保证该链接一直处于在线状态
-func (c *Channel) KeepAlive() {
-	lastResponse := time.Now()
-	c.conn.SetPongHandler(func(msg string) error {
-		lastResponse = time.Now()
-		return nil
-	})
-
-	timeout := time.Second
-	for {
-		err := c.conn.WriteMessage(websocket.PingMessage, []byte("keepalive"))
-		if err != nil {
-			return
-		}
-		time.Sleep(timeout / 2)
-		if time.Since(lastResponse) > timeout {
-			c.Close()
-			return
-		}
-	}
 }
 
 var (
@@ -110,18 +97,56 @@ func ChannelManager() *manager {
 type manager struct {
 	sync.Mutex
 	userId2Channel map[int64]*Channel
+
+	unregister chan *Channel
+	register   chan *Channel
+}
+
+func (m *manager) Run() {
+	go m.registerLoop()
+	go m.unregisterLoop()
+}
+
+func (m *manager) registerLoop() {
+	ctx := context.Background()
+	ctx = orm.BindContext(ctx)
+	for {
+		select {
+		case c, ok := <-m.register:
+			if !ok {
+				return
+			}
+			m.userId2Channel[c.userId] = c
+			err := UserService().Online(ctx, c.userId)
+			if err != nil {
+				logger.CtxErrorf(ctx, "user online error: %v", err)
+			}
+		}
+	}
+}
+
+func (m *manager) unregisterLoop() {
+	for {
+		select {
+		case c, ok := <-m.unregister:
+			if !ok {
+				return
+			}
+			delete(m.userId2Channel, c.userId)
+			err := UserService().Offline(context.Background(), c.userId)
+			if err != nil {
+				logger.CtxErrorf(nil, "user offline error: %v", err)
+			}
+		}
+	}
 }
 
 func (m *manager) AddChannel(channel *Channel) {
-	m.Lock()
-	defer m.Unlock()
-	m.userId2Channel[channel.userId] = channel
+	m.register <- channel
 }
 
-func (m *manager) RemoveChannel(userId int64) {
-	m.Lock()
-	defer m.Unlock()
-	delete(m.userId2Channel, userId)
+func (m *manager) RemoveChannel(channel *Channel) {
+	m.unregister <- channel
 }
 
 func (m *manager) GetChannel(userId int64) *Channel {

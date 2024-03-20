@@ -23,10 +23,13 @@ type Server struct {
 	discovery *naming.ServiceDiscovery
 
 	apiServers map[string]api.ApiServerClient
+
+	chat.UnimplementedChatServer
 }
 
 func (s *Server) PushMessage(ctx context.Context, request *chat.PushMessageRequest) (*chat.PushMessageReply, error) {
-	return nil, nil
+	logger.CtxInfof(ctx, "receive push message request: %v", request)
+	return &chat.PushMessageReply{}, nil
 }
 
 func NewServer(conf *config.Config) *Server {

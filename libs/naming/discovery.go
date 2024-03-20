@@ -6,7 +6,6 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"golib/libs/etcd_helper"
 	"golib/libs/logger"
-	"log"
 	"sync"
 	"time"
 )
@@ -88,7 +87,6 @@ func (s *ServiceDiscovery) SetServiceList(key, val string) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.serverList[key] = val
-	log.Println("put key :", key, "val:", val)
 }
 
 // DelServiceList 删除服务地址
@@ -96,7 +94,6 @@ func (s *ServiceDiscovery) DelServiceList(key string) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	delete(s.serverList, key)
-	log.Println("del key:", key)
 }
 
 func (s *ServiceDiscovery) GetServiceList() map[string]string {

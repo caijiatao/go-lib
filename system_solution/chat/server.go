@@ -9,6 +9,7 @@ import (
 	"golib/system_solution/chat_api_server/api"
 	"golib/system_solution/cmd/chat/config"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net"
 	"sync"
 )
@@ -112,7 +113,7 @@ func (s *Server) renewAPIServers() {
 }
 
 func newAPIServerClient(addr string) (api.ChatApiClient, error) {
-	conn, err := grpc.Dial(addr)
+	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

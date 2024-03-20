@@ -95,7 +95,7 @@ func ChannelManager() *manager {
 }
 
 type manager struct {
-	sync.Mutex
+	sync.RWMutex
 	userId2Channel map[int64]*Channel
 
 	unregister chan *Channel
@@ -117,7 +117,7 @@ func (m *manager) registerLoop() {
 				return
 			}
 			m.userId2Channel[c.userId] = c
-			err := UserService().Online(ctx, c.userId)
+			err := ChatService().UserOnline(ctx, c.userId)
 			if err != nil {
 				logger.CtxErrorf(ctx, "user online error: %v", err)
 			}
@@ -126,6 +126,7 @@ func (m *manager) registerLoop() {
 }
 
 func (m *manager) unregisterLoop() {
+	ctx := orm.BindContext(context.Background())
 	for {
 		select {
 		case c, ok := <-m.unregister:
@@ -133,7 +134,7 @@ func (m *manager) unregisterLoop() {
 				return
 			}
 			delete(m.userId2Channel, c.userId)
-			err := UserService().Offline(context.Background(), c.userId)
+			err := ChatService().UserOffline(ctx, c.userId)
 			if err != nil {
 				logger.CtxErrorf(nil, "user offline error: %v", err)
 			}
@@ -150,8 +151,8 @@ func (m *manager) RemoveChannel(channel *Channel) {
 }
 
 func (m *manager) GetChannel(userId int64) *Channel {
-	m.Lock()
-	defer m.Unlock()
+	m.RLock()
+	defer m.RUnlock()
 	return m.userId2Channel[userId]
 }
 

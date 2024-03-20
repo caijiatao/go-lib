@@ -2,12 +2,9 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"golib/system_solution/chat"
 )
 
 func main() {
-	chat.NewServer()
-
 	err := App().Init(gin.Default()).Run()
 	if err != nil {
 		panic(err)

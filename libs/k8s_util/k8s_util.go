@@ -167,3 +167,19 @@ func GetDynamicResourceInterface(unstructuredObj *unstructured.Unstructured) (dr
 	}
 	return dri, nil
 }
+
+// GetPodIP
+//
+//	@Description: 获取本机pod IP用于直接发起请求
+func GetPodIP(ctx context.Context) (string, error) {
+	client, err := GetClient()
+	if err != nil {
+		return "", err
+	}
+	podName := os.Getenv("HOSTNAME")
+	pod, err := client.CoreV1().Pods("default").Get(ctx, podName, metav1.GetOptions{})
+	if err != nil {
+		return "", err
+	}
+	return pod.Status.PodIP, nil
+}

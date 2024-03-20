@@ -15,10 +15,12 @@ import (
 type ServiceDiscovery struct {
 	serverList map[string]string //服务列表
 	lock       sync.Mutex
+
+	changeEvent chan struct{}
 }
 
 // NewServiceDiscovery  新建发现服务
-func NewServiceDiscovery(endpoints []string) *ServiceDiscovery {
+func NewServiceDiscovery(endpoints []string, prefix string) *ServiceDiscovery {
 	err := etcd_helper.InitETCDClient(etcd_helper.Config{
 		ClientName: namingETCDClientKey,
 		Config: clientv3.Config{
@@ -29,13 +31,21 @@ func NewServiceDiscovery(endpoints []string) *ServiceDiscovery {
 	if err != nil {
 		return nil
 	}
-	return &ServiceDiscovery{
-		serverList: make(map[string]string),
+	svrDisc := &ServiceDiscovery{
+		serverList:  make(map[string]string),
+		changeEvent: make(chan struct{}, 8),
 	}
+
+	err = svrDisc.runWatchService(prefix)
+	if err != nil {
+		return nil
+	}
+
+	return svrDisc
 }
 
-// WatchService 初始化服务列表和监视
-func (s *ServiceDiscovery) WatchService(prefix string) error {
+// runWatchService 初始化服务列表和监视
+func (s *ServiceDiscovery) runWatchService(prefix string) error {
 	//根据前缀获取现有的key
 	resp, err := etcd_helper.GetClientByName(namingETCDClientKey).Get(context.Background(), prefix, clientv3.WithPrefix())
 	if err != nil {
@@ -63,8 +73,14 @@ func (s *ServiceDiscovery) watcher(prefix string) {
 			case mvccpb.DELETE: //删除
 				s.DelServiceList(string(ev.Kv.Key))
 			}
+			// 通知变更
+			s.changeEvent <- struct{}{}
 		}
 	}
+}
+
+func (s *ServiceDiscovery) Watch() <-chan struct{} {
+	return s.changeEvent
 }
 
 // SetServiceList 新增服务地址
@@ -83,6 +99,10 @@ func (s *ServiceDiscovery) DelServiceList(key string) {
 	log.Println("del key:", key)
 }
 
+func (s *ServiceDiscovery) GetServiceList() map[string]string {
+	return s.serverList
+}
+
 // GetServices 获取服务地址
 func (s *ServiceDiscovery) GetServices() []string {
 	s.lock.Lock()
@@ -93,4 +113,9 @@ func (s *ServiceDiscovery) GetServices() []string {
 		addrs = append(addrs, v)
 	}
 	return addrs
+}
+
+func (s *ServiceDiscovery) Close() error {
+	close(s.changeEvent)
+	return nil
 }

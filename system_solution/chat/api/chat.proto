@@ -11,4 +11,6 @@ message PushMessageRequest {
   string message = 2;
 }
 
-message PushMessageReply {}
+message PushMessageReply {
+  string message = 1;
+}

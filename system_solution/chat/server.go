@@ -25,6 +25,8 @@ type Server struct {
 	apiServers map[string]api.ChatApiClient
 
 	chat.UnimplementedChatServer
+
+	rpcSvr *grpc.Server
 }
 
 func (s *Server) PushMessage(ctx context.Context, request *chat.PushMessageRequest) (*chat.PushMessageReply, error) {
@@ -57,6 +59,7 @@ func NewServer(conf *config.Config) *Server {
 func (s *Server) Close() {
 	_ = s.register.Close()
 	_ = s.discovery.Close()
+	s.rpcSvr.GracefulStop()
 }
 
 func (s *Server) runRPCServer(conf *config.Config) {
@@ -66,13 +69,17 @@ func (s *Server) runRPCServer(conf *config.Config) {
 	}
 	grpcServer := grpc.NewServer()
 	chat.RegisterChatServer(grpcServer, s)
-	if err := grpcServer.Serve(lis); err != nil {
-		logger.Errorf("rpc server serve error: %v", err)
-		panic(err)
-	}
+	go func() {
+		if err := grpcServer.Serve(lis); err != nil {
+			logger.Errorf("rpc server serve error: %v", err)
+			panic(err)
+		}
+	}()
+	s.rpcSvr = grpcServer
 }
 
 func (s *Server) watchAPIServers() {
+	s.renewAPIServers()
 	for {
 		select {
 		case _, ok := <-s.discovery.Watch():

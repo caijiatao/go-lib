@@ -1,5 +1,6 @@
 package naming
 
 const (
-	namingETCDClientKey = "naming-etcd-client-key"
+	namingRegisterETCDClientKey  = "naming-etcd-client-key"
+	namingDiscoveryETCDClientKey = "naming-disc-etcd-client-key"
 )

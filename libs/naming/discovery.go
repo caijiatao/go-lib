@@ -22,7 +22,7 @@ type ServiceDiscovery struct {
 // NewServiceDiscovery  新建发现服务
 func NewServiceDiscovery(endpoints []string, prefix string) *ServiceDiscovery {
 	err := etcd_helper.InitETCDClient(etcd_helper.Config{
-		ClientName: namingETCDClientKey,
+		ClientName: namingDiscoveryETCDClientKey,
 		Config: clientv3.Config{
 			Endpoints:   endpoints,
 			DialTimeout: 5 * time.Second,
@@ -47,7 +47,7 @@ func NewServiceDiscovery(endpoints []string, prefix string) *ServiceDiscovery {
 // runWatchService 初始化服务列表和监视
 func (s *ServiceDiscovery) runWatchService(prefix string) error {
 	//根据前缀获取现有的key
-	resp, err := etcd_helper.GetClientByName(namingETCDClientKey).Get(context.Background(), prefix, clientv3.WithPrefix())
+	resp, err := etcd_helper.GetClientByName(namingDiscoveryETCDClientKey).Get(context.Background(), prefix, clientv3.WithPrefix())
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (s *ServiceDiscovery) runWatchService(prefix string) error {
 
 // watcher 监听前缀
 func (s *ServiceDiscovery) watcher(prefix string) {
-	rch := etcd_helper.GetClientByName(namingETCDClientKey).Watch(context.Background(), prefix, clientv3.WithPrefix())
+	rch := etcd_helper.GetClientByName(namingDiscoveryETCDClientKey).Watch(context.Background(), prefix, clientv3.WithPrefix())
 	logger.Infof("watching prefix:%s now...", prefix)
 	for wresp := range rch {
 		for _, ev := range wresp.Events {

@@ -9,6 +9,7 @@ import (
 	"golib/system_solution/chat_api_server/api"
 	"golib/system_solution/cmd/chat_api_server/config"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net"
 	"sync"
 )
@@ -23,6 +24,8 @@ type Server struct {
 	discovery *naming.ServiceDiscovery
 
 	chatClients map[string]chat.ChatClient
+
+	rpcSvr *grpc.Server
 
 	api.UnimplementedChatApiServer
 }
@@ -57,6 +60,7 @@ func NewServer(conf *config.Config) *Server {
 func (s *Server) Close() {
 	_ = s.register.Close()
 	_ = s.discovery.Close()
+	s.rpcSvr.GracefulStop()
 }
 
 func (s *Server) runRPCServer(conf *config.Config) {
@@ -66,13 +70,18 @@ func (s *Server) runRPCServer(conf *config.Config) {
 	}
 	grpcServer := grpc.NewServer()
 	api.RegisterChatApiServer(grpcServer, s)
-	if err := grpcServer.Serve(lis); err != nil {
-		logger.Errorf("rpc server serve error: %v", err)
-		panic(err)
-	}
+	go func() {
+		if err := grpcServer.Serve(lis); err != nil {
+			logger.Errorf("rpc server serve error: %v", err)
+			panic(err)
+		}
+	}()
+	s.rpcSvr = grpcServer
 }
 
 func (s *Server) watchChatClients() {
+	// 第一次初始化
+	s.renewChatClients()
 	for {
 		select {
 		case _, ok := <-s.discovery.Watch():
@@ -105,7 +114,7 @@ func (s *Server) renewChatClients() {
 }
 
 func newChatClient(addr string) (chat.ChatClient, error) {
-	conn, err := grpc.Dial(addr)
+	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

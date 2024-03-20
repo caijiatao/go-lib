@@ -22,9 +22,9 @@ type Config struct {
 func init() {
 	once.Do(func() {
 		config = &Config{
-			ETCDEndpoints: []string{"localhost:2379"},
+			ETCDEndpoints: []string{"127.0.0.1:2379"},
 			Env: &Env{
-				Host: "localhost",
+				Host: "127.0.0.1",
 				Port: "13138",
 			},
 			RPCServer: &RPCServer{

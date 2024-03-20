@@ -24,7 +24,7 @@ func init() {
 		config = &Config{
 			ETCDEndpoints: []string{"localhost:2379"},
 			Env: &Env{
-				Host: "localhost",
+				Host: "127.0.0.1",
 				Port: "13137",
 			},
 			RPCServer: &RPCServer{

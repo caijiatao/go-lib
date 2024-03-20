@@ -21,7 +21,7 @@ type ServiceRegister struct {
 // NewServiceRegister 新建注册服务
 func NewServiceRegister(endpoints []string, key, val string, lease int64) (*ServiceRegister, error) {
 	err := etcd_helper.InitETCDClient(etcd_helper.Config{
-		ClientName: namingETCDClientKey,
+		ClientName: namingRegisterETCDClientKey,
 		Config: clientv3.Config{
 			Endpoints:   endpoints,
 			DialTimeout: 5 * time.Second,
@@ -47,17 +47,17 @@ func NewServiceRegister(endpoints []string, key, val string, lease int64) (*Serv
 // 设置租约
 func (s *ServiceRegister) putKeyWithLease(lease int64) error {
 	//设置租约时间
-	resp, err := etcd_helper.GetClientByName(namingETCDClientKey).Grant(context.Background(), lease)
+	resp, err := etcd_helper.GetClientByName(namingRegisterETCDClientKey).Grant(context.Background(), lease)
 	if err != nil {
 		return err
 	}
 	//注册服务并绑定租约
-	_, err = etcd_helper.GetClientByName(namingETCDClientKey).Put(context.Background(), s.key, s.val, clientv3.WithLease(resp.ID))
+	_, err = etcd_helper.GetClientByName(namingRegisterETCDClientKey).Put(context.Background(), s.key, s.val, clientv3.WithLease(resp.ID))
 	if err != nil {
 		return err
 	}
 	//设置续租 定期发送需求请求
-	leaseRespChan, err := etcd_helper.GetClientByName(namingETCDClientKey).KeepAlive(context.Background(), resp.ID)
+	leaseRespChan, err := etcd_helper.GetClientByName(namingRegisterETCDClientKey).KeepAlive(context.Background(), resp.ID)
 
 	if err != nil {
 		return err
@@ -80,9 +80,9 @@ func (s *ServiceRegister) ListenLeaseRespChan() {
 // Close 注销服务
 func (s *ServiceRegister) Close() error {
 	//撤销租约
-	if _, err := etcd_helper.GetClientByName(namingETCDClientKey).Revoke(context.Background(), s.leaseID); err != nil {
+	if _, err := etcd_helper.GetClientByName(namingRegisterETCDClientKey).Revoke(context.Background(), s.leaseID); err != nil {
 		return err
 	}
 	logger.Infof("撤销租约")
-	return etcd_helper.GetClientByName(namingETCDClientKey).Close()
+	return etcd_helper.GetClientByName(namingRegisterETCDClientKey).Close()
 }

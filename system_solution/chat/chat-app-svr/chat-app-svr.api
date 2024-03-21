@@ -1,0 +1,38 @@
+syntax = "v1"
+
+info (
+	title: // TODO: add title
+	desc: // TODO: add description
+	author: "caijiatao"
+)
+
+type (
+	GetUserReq {
+		UserId string `form:"userId"`
+	}
+
+	GetUserResp {
+		UserId      string `json:"userId"`
+		PhoneNumber string `json:"phoneNumber"`
+	}
+)
+
+type (
+	LoginReq {
+		PhoneNumber string `form:"phoneNumber"`
+		Password    string `form:"password"`
+	}
+
+	LoginResp {
+		UserId string `json:"userId"`
+		Token  string `json:"token"`
+	}
+)
+
+service chat-app-svr-api {
+	@handler GetUser
+	get /user (GetUserReq) returns (GetUserResp)
+
+	@handler Login
+	post /user/login (LoginReq) returns (LoginResp)
+}

@@ -69,11 +69,11 @@ func (s *ServiceDiscovery) watcher(prefix string) {
 			switch ev.Type {
 			case mvccpb.PUT: //修改或者新增
 				s.SetServiceList(string(ev.Kv.Key), string(ev.Kv.Value))
+				s.changeEvent <- struct{}{}
 			case mvccpb.DELETE: //删除
 				s.DelServiceList(string(ev.Kv.Key))
+				s.changeEvent <- struct{}{}
 			}
-			// 通知变更
-			s.changeEvent <- struct{}{}
 		}
 	}
 }

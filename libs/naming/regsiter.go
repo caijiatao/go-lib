@@ -66,13 +66,14 @@ func (s *ServiceRegister) putKeyWithLease(lease int64) error {
 	logger.Infof("%d", s.leaseID)
 	s.keepAliveChan = leaseRespChan
 	logger.Infof("Put key:%s  val:%s  success!", s.key, s.val)
+	go s.ListenLeaseRespChan()
 	return nil
 }
 
 // ListenLeaseRespChan 监听 续租情况
 func (s *ServiceRegister) ListenLeaseRespChan() {
-	for leaseKeepResp := range s.keepAliveChan {
-		logger.Infof("续约成功", leaseKeepResp)
+	for _ = range s.keepAliveChan {
+		//logger.Infof("续约成功", leaseKeepResp)
 	}
 	logger.Infof("关闭续租")
 }

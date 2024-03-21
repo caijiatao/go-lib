@@ -1,33 +1,49 @@
-// api.js
+import axios, {AxiosInstance} from 'axios';
 
-import axios from 'axios';
+class AuthService {
+    private token: string | null = null;
+    private userId: Number | null = null;
 
-// 创建一个 Axios 实例
-const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8080',
+    // 设置登录后的 Token
+    setToken(token: string) {
+        this.token = token;
+    }
+
+    // 获取 Token
+    getToken(): string | null {
+        return this.token;
+    }
+
+    setUserId(userId: Number) {
+        this.userId = userId;
+    }
+
+    getUserId(): Number | null {
+        return this.userId;
+    }
+
+    // 检查是否已登录
+    isLoggedIn(): boolean {
+        return !!this.token;
+    }
+}
+
+export let authService = new AuthService();
+
+
+// 创建 Axios 实例
+const axiosInstance: AxiosInstance = axios.create({
+    baseURL: 'http://localhost:8080', // 替换为您的 API 地址
 });
 
-// 登录方法，接收用户名和密码，返回登录成功后的 Token
-export const login = async (phone_number) => {
-    try {
-        const response = await axiosInstance.post('/api/user/login', { phone_number: phone_number });
-        if (response.status === 200) {
-            return response.data.token;
-        } else {
-            throw new Error('登录失败');
-        }
-    } catch (error) {
-        throw new Error('登录请求失败');
+// 请求拦截器
+axiosInstance.interceptors.request.use((config) => {
+    // 如果已登录，则在请求头中添加 Token
+    if (authService.isLoggedIn()) {
+        config.headers.Authorization = `Bearer ${authService.getToken()}`;
     }
-};
+    return config;
+}, (error) => {
+});
 
-// 创建一个带有 Token 的 Axios 实例
-export const createAuthenticatedInstance = (token) => {
-    const authenticatedInstance = axios.create({
-        baseURL: 'http://localhost:8080',
-        headers: {
-            Authorization: `Bearer ${token}`, // 在请求头中添加 Token
-        },
-    });
-    return authenticatedInstance;
-};
+

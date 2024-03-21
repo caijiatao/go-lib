@@ -20,9 +20,8 @@ var (
 )
 
 type Server struct {
-	register  *naming.ServiceRegister
-	discovery *naming.ServiceDiscovery
-
+	register   *naming.ServiceRegister
+	discovery  *naming.ServiceDiscovery
 	apiServers map[string]api.ChatApiClient
 
 	chat.UnimplementedChatServer
@@ -80,7 +79,7 @@ func (s *Server) runRPCServer(conf *config.Config) {
 }
 
 func (s *Server) watchAPIServers() {
-	s.renewAPIServers()
+	s.renewClients()
 	for {
 		select {
 		case _, ok := <-s.discovery.Watch():
@@ -88,16 +87,16 @@ func (s *Server) watchAPIServers() {
 				logger.Infof("discovery exit")
 				return
 			}
-			s.renewAPIServers()
+			s.renewClients()
 		}
 	}
 }
 
-func (s *Server) renewAPIServers() {
+func (s *Server) renewClients() {
 	serviceList := s.discovery.GetServiceList()
 	apiServers := map[string]api.ChatApiClient{}
 	for k, addr := range serviceList {
-		apiServer, err := newAPIServerClient(addr)
+		apiServer, err := newChatAPIClient(addr)
 		if err != nil {
 			logger.Errorf("new api server client error: %v", err)
 			continue
@@ -112,7 +111,7 @@ func (s *Server) renewAPIServers() {
 	s.apiServers = apiServers
 }
 
-func newAPIServerClient(addr string) (api.ChatApiClient, error) {
+func newChatAPIClient(addr string) (api.ChatApiClient, error) {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err

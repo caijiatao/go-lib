@@ -45,6 +45,7 @@ func (c *Channel) SendLoop() {
 }
 
 func (c *Channel) RecvLoop() {
+	ctx := orm.BindContext(context.Background())
 	for {
 		messageType, message, err := c.conn.ReadMessage()
 		if err != nil {
@@ -61,6 +62,10 @@ func (c *Channel) RecvLoop() {
 			}
 			m.FromUser = c.userId
 			m.ToUser = c.userId // 重新发给自己
+			err = ChatService().PushMessage(ctx, m)
+			if err != nil {
+				logger.CtxErrorf(ctx, "push message error: %v", err)
+			}
 		}
 		if err != nil {
 			_ = c.Close()
@@ -90,6 +95,7 @@ func ChannelManager() *manager {
 		channelManager = &manager{
 			userId2Channel: make(map[int64]*Channel),
 		}
+		channelManager.run()
 	})
 	return channelManager
 }
@@ -102,7 +108,7 @@ type manager struct {
 	register   chan *Channel
 }
 
-func (m *manager) Run() {
+func (m *manager) run() {
 	go m.registerLoop()
 	go m.unregisterLoop()
 }

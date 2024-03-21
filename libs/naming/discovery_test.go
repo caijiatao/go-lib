@@ -8,9 +8,7 @@ import (
 
 func TestDiscovery(t *testing.T) {
 	var endpoints = []string{"localhost:2379"}
-	ser := NewServiceDiscovery(endpoints)
-	ser.runWatchService("/web/")
-	ser.runWatchService("/gRPC/")
+	ser := NewServiceDiscovery(endpoints, "/api_server/")
 	for {
 		select {
 		case <-time.Tick(10 * time.Second):

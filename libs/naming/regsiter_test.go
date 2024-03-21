@@ -8,7 +8,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	var endpoints = []string{"localhost:2379"}
-	ser, err := NewServiceRegister(endpoints, "/web/node1", "localhost:8000", 5)
+	ser, err := NewServiceRegister(endpoints, "/api_server/", "localhost:8000", 5)
 	if err != nil {
 		log.Fatalln(err)
 	}

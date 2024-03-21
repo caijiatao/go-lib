@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"golib/libs/etcd_helper"
 	"golib/libs/logger"
 	"golib/libs/orm"
 	"golib/system_solution/chat/model"
@@ -51,6 +52,7 @@ func (c *Channel) RecvLoop() {
 		if err != nil {
 			return
 		}
+
 		switch messageType {
 		case websocket.PingMessage:
 			err = c.conn.WriteMessage(websocket.PongMessage, nil)
@@ -61,7 +63,6 @@ func (c *Channel) RecvLoop() {
 				return
 			}
 			m.FromUser = c.userId
-			m.ToUser = c.userId // 重新发给自己
 			err = ChatService().PushMessage(ctx, m)
 			if err != nil {
 				logger.CtxErrorf(ctx, "push message error: %v", err)
@@ -116,6 +117,7 @@ func (m *manager) run() {
 func (m *manager) registerLoop() {
 	ctx := context.Background()
 	ctx = orm.BindContext(ctx)
+	ctx = etcd_helper.BindContext(ctx)
 	for {
 		select {
 		case c, ok := <-m.register:

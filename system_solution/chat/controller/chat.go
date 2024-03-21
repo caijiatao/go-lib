@@ -56,7 +56,10 @@ func (c *Controller) Chat(ctx *gin.Context) {
 		return
 	}
 	// parse user id
-	userID := ctx.Query("user_id")
+	userID, ok := ctx.GetQuery("user_id")
+	if !ok {
+		return
+	}
 	if userID == "" {
 		return
 	}

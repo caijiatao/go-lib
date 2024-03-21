@@ -6,10 +6,8 @@ import (
 	"golib/libs/logger"
 	"golib/libs/naming"
 	chat "golib/system_solution/chat/api"
-	"golib/system_solution/chat_api_server/api"
 	"golib/system_solution/cmd/chat/config"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"net"
 	"sync"
 )
@@ -20,9 +18,7 @@ var (
 )
 
 type Server struct {
-	register   *naming.ServiceRegister
-	discovery  *naming.ServiceDiscovery
-	apiServers map[string]api.ChatApiClient
+	register *naming.ServiceRegister
 
 	chat.UnimplementedChatServer
 
@@ -45,20 +41,12 @@ func NewServer(conf *config.Config) *Server {
 		if err != nil {
 			panic(err)
 		}
-
-		server.discovery = naming.NewServiceDiscovery(conf.ETCDEndpoints, "/api_server/")
-		if err != nil {
-			panic(err)
-		}
-
-		go server.watchAPIServers()
 	})
 	return server
 }
 
 func (s *Server) Close() {
 	_ = s.register.Close()
-	_ = s.discovery.Close()
 	s.rpcSvr.GracefulStop()
 }
 
@@ -76,45 +64,4 @@ func (s *Server) runRPCServer(conf *config.Config) {
 		}
 	}()
 	s.rpcSvr = grpcServer
-}
-
-func (s *Server) watchAPIServers() {
-	s.renewClients()
-	for {
-		select {
-		case _, ok := <-s.discovery.Watch():
-			if !ok {
-				logger.Infof("discovery exit")
-				return
-			}
-			s.renewClients()
-		}
-	}
-}
-
-func (s *Server) renewClients() {
-	serviceList := s.discovery.GetServiceList()
-	apiServers := map[string]api.ChatApiClient{}
-	for k, addr := range serviceList {
-		apiServer, err := newChatAPIClient(addr)
-		if err != nil {
-			logger.Errorf("new api server client error: %v", err)
-			continue
-		}
-		apiServers[k] = apiServer
-	}
-	for key, old := range s.apiServers {
-		if _, ok := apiServers[key]; !ok {
-			logger.CtxInfof(context.Background(), "api server %s(%v) offline", key, old)
-		}
-	}
-	s.apiServers = apiServers
-}
-
-func newChatAPIClient(addr string) (api.ChatApiClient, error) {
-	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return nil, err
-	}
-	return api.NewChatApiClient(conn), nil
 }

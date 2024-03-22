@@ -4,7 +4,7 @@ package main
 import (
 	"context"
 	"fmt"
-	greater2 "golib/system_solution/net_demo/unix_grpc/pb"
+	"golib/examples/net_demo/unix_grpc/pb"
 	"log"
 
 	"google.golang.org/grpc"
@@ -19,10 +19,10 @@ func main() {
 	defer conn.Close()
 
 	// 创建gRPC客户端
-	client := greater2.NewGreeterClient(conn)
+	client := greater.NewGreeterClient(conn)
 
 	// 发送gRPC请求
-	response, err := client.SayHello(context.Background(), &greater2.HelloRequest{Name: "John"})
+	response, err := client.SayHello(context.Background(), &greater.HelloRequest{Name: "John"})
 	if err != nil {
 		log.Fatalf("Error calling SayHello: %v", err)
 	}

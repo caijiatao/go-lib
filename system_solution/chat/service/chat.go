@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"
+	"golib/examples/cmd/chat/config"
 	"golib/libs/etcd_helper"
 	"golib/system_solution/chat/model"
-	"golib/system_solution/cmd/chat/config"
 	"strconv"
 	"sync"
 )

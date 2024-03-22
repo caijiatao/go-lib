@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"chat-app-svr/rpc/user/userclient"
 	"context"
 
 	"chat-app-svr/internal/svc"
@@ -24,7 +25,17 @@ func NewGetUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserLo
 }
 
 func (l *GetUserLogic) GetUser(req *types.GetUserReq) (resp *types.GetUserResp, err error) {
-	// todo: add your logic here and delete this line
+	detail, err := l.svcCtx.User.UserDetail(l.ctx, &userclient.UserDetailRequest{
+		UserId: req.UserId,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	resp = &types.GetUserResp{
+		UserId:      detail.UserId,
+		PhoneNumber: detail.Phone,
+	}
+
+	return resp, nil
 }

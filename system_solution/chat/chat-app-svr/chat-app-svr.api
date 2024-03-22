@@ -8,11 +8,11 @@ info (
 
 type (
 	GetUserReq {
-		UserId string `form:"userId"`
+		UserId int64 `form:"userId"`
 	}
 
 	GetUserResp {
-		UserId      string `json:"userId"`
+		UserId      int64  `json:"userId"`
 		PhoneNumber string `json:"phoneNumber"`
 	}
 )
@@ -24,7 +24,7 @@ type (
 	}
 
 	LoginResp {
-		UserId string `json:"userId"`
+		UserId int64  `json:"userId"`
 		Token  string `json:"token"`
 	}
 )

@@ -24,7 +24,14 @@ func NewUserDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserDe
 }
 
 func (l *UserDetailLogic) UserDetail(in *user.UserDetailRequest) (*user.UserDetailReply, error) {
-	// todo: add your logic here and delete this line
+	u, err := l.svcCtx.UserModel.FindOne(l.ctx, in.UserId)
+	if err != nil {
+		return nil, err
+	}
 
-	return &user.UserDetailReply{}, nil
+	return &user.UserDetailReply{
+		UserId: u.Id,
+		Name:   u.NickName.String,
+		Phone:  u.PhoneNumber,
+	}, nil
 }

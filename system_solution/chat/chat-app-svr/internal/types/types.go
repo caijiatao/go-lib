@@ -2,11 +2,11 @@
 package types
 
 type GetUserReq struct {
-	UserId string `form:"userId"`
+	UserId int64 `form:"userId"`
 }
 
 type GetUserResp struct {
-	UserId      string `json:"userId"`
+	UserId      int64  `json:"userId"`
 	PhoneNumber string `json:"phoneNumber"`
 }
 
@@ -16,6 +16,6 @@ type LoginReq struct {
 }
 
 type LoginResp struct {
-	UserId string `json:"userId"`
+	UserId int64  `json:"userId"`
 	Token  string `json:"token"`
 }

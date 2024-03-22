@@ -18,14 +18,14 @@ const handleMessage = (event) => {
     messages.value.push(`${message.from_user}: ${message.message_body}`);
 };
 
-export const sendMessage = (messageBody: any) => {
+ export function sendMessage(messageBody: any)  {
     if (messageBody.value.trim() !== '') {
         const message = {
             to_user: 111,
             content: messageBody.value,
         };
         console.log(message)
-        websocket.send(JSON.stringify(message));
+         websocket.send(JSON.stringify(message));
         messageBody.value = '';
     }
 };

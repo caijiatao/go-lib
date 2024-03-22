@@ -1,11 +1,10 @@
 package logic
 
 import (
-	"chat-app-svr/rpc/user/userclient"
-	"context"
-
 	"chat-app-svr/internal/svc"
 	"chat-app-svr/internal/types"
+	"chat-app-svr/rpc/user/userclient"
+	"context"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

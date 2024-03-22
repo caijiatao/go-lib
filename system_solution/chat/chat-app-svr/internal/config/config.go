@@ -9,5 +9,5 @@ type Config struct {
 	rest.RestConf
 
 	User zrpc.RpcClientConf
-	Chat zrpc.RpcClientConf
+	//Chat zrpc.RpcClientConf
 }

@@ -1,15 +1,12 @@
-Name: user.rpc
+Name: notification.rpc
 ListenOn: 0.0.0.0:8080
 Etcd:
   Hosts:
     - 127.0.0.1:2379
-  Key: user.rpc
-# DataSource:
+  Key: notification.rpc
+
 Chat:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
     Key: chat.rpc
-Table: user
-Cache:
-  - Host: localhost:6379

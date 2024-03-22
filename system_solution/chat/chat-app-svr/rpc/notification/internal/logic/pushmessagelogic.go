@@ -1,14 +1,13 @@
 package logic
 
 import (
+	"chat-app-svr/rpc/notification/internal/config"
+	"chat-app-svr/rpc/notification/internal/svc"
+	"chat-app-svr/rpc/notification/notification"
 	"context"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/discov"
 	"github.com/zeromicro/go-zero/core/logx"
-	"golib/libs/net_helper"
-	"golib/system_solution/chat/chat-app-svr/rpc/notification/internal/config"
-	"golib/system_solution/chat/chat-app-svr/rpc/notification/internal/svc"
-	"golib/system_solution/chat/chat-app-svr/rpc/notification/notification"
 )
 
 type PushMessageLogic struct {
@@ -29,8 +28,6 @@ func InitPushServers() {
 	for _, value := range values {
 		fmt.Println("push server: ", value)
 	}
-
-	net_helper.GetFigureOutListenOn(config.Conf().RpcServerConf.ListenOn)
 
 	subscriber.AddListener(func() {
 		values := subscriber.Values()

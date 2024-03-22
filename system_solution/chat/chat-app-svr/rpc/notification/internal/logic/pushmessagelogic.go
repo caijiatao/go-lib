@@ -6,9 +6,9 @@ import (
 	"chat-app-svr/rpc/notification/notification"
 	"context"
 	"fmt"
-	"github.com/golib/libs/net_helper"
 	"github.com/zeromicro/go-zero/core/discov"
 	"github.com/zeromicro/go-zero/core/logx"
+	"golib/libs/net_helper"
 )
 
 type PushMessageLogic struct {

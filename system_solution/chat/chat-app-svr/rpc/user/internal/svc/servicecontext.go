@@ -1,20 +1,19 @@
 package svc
 
 import (
-	"chat-app-svr/rpc/model"
 	"chat-app-svr/rpc/user/internal/config"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"chat-app-svr/rpc/user/internal/dao"
 )
 
 type ServiceContext struct {
 	Config config.Config
 
-	UserModel model.UserModel
+	UserDao *dao.UserDao
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:    c,
-		UserModel: model.NewUserModel(sqlx.NewSqlConn("postgres", c.DataSource)),
+		Config:  c,
+		UserDao: dao.NewUserDao(),
 	}
 }

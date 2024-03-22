@@ -24,14 +24,13 @@ func NewUserDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserDe
 }
 
 func (l *UserDetailLogic) UserDetail(in *user.UserDetailRequest) (*user.UserDetailReply, error) {
-	u, err := l.svcCtx.UserModel.FindOne(l.ctx, in.UserId)
+	u, err := l.svcCtx.UserDao.QueryUserById(l.ctx, in.UserId)
 	if err != nil {
 		return nil, err
 	}
 
 	return &user.UserDetailReply{
 		UserId: u.Id,
-		Name:   u.NickName.String,
 		Phone:  u.PhoneNumber,
 	}, nil
 }

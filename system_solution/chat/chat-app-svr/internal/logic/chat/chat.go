@@ -1,9 +1,11 @@
 package service
 
 import (
+	"chat-app-svr/internal/model"
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"
+	"golib/libs/etcd_helper"
 	"strconv"
 	"sync"
 )

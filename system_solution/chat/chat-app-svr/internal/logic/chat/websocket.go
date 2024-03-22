@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/gorilla/websocket"
-	"golib/system_solution/chat/service"
 	"log"
 	"net/http"
 	"strconv"
@@ -36,10 +35,10 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	}
 	// user id to int64
 	userIDInt, err := strconv.ParseInt(userID, 10, 64)
-	channel := service.NewChannel(userIDInt, conn, make(chan []byte, 256))
+	channel := NewChannel(userIDInt, conn, make(chan []byte, 256))
 
 	go channel.SendLoop()
 	go channel.RecvLoop()
 
-	service.ChannelManager().AddChannel(channel)
+	ChannelManager().AddChannel(channel)
 }

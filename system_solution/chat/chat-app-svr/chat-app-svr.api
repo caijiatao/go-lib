@@ -1,37 +1,61 @@
 syntax = "v1"
 
-info (
-	title:  "chat_api_server"
-	desc:   "chat api"
-	author: "caijiatao"
+info(
+    title: "chat_api_server"
+    desc: "chat api"
+    author: "caijiatao"
 )
 
 type (
-	GetUserReq {
-		UserId int64 `form:"userId"`
-	}
-	GetUserResp {
-		UserId      int64  `json:"userId"`
-		PhoneNumber string `json:"phoneNumber"`
-	}
+    GetUserReq {
+        UserId int64 `form:"userId"`
+    }
+    GetUserResp {
+        UserId int64 `json:"userId"`
+        PhoneNumber string `json:"phoneNumber"`
+    }
+
+    LoginReq {
+        PhoneNumber string `form:"phoneNumber"`
+        Password string `form:"password"`
+    }
+    LoginResp {
+        UserId int64 `json:"userId"`
+        Token string `json:"token"`
+    }
+
+    FriendsReq {
+
+    }
+    FriendsResp {
+
+    }
+
+    ChatsReq {}
+    ChatsResp {}
+
+    ChatDetailReq {}
+    ChatDetailResp {}
+
+    GroupsReq{}
+    GroupsResp{}
 )
 
-type (
-	LoginReq {
-		PhoneNumber string `form:"phoneNumber"`
-		Password    string `form:"password"`
-	}
-	LoginResp {
-		UserId int64  `json:"userId"`
-		Token  string `json:"token"`
-	}
+@server(
+    prefix: /v1
+    group: user
 )
-
 service chat_svr {
-	@handler GetUser
-	get /user (GetUserReq) returns (GetUserResp)
+    @handler GetUser
+    get /info (GetUserReq) returns (GetUserResp)
 
-	@handler Login
-	post /user/login (LoginReq) returns (LoginResp)
+    @handler Login
+    post /login (LoginReq) returns (LoginResp)
+
+    @handler GetFriends
+    get /friends (FriendsReq) returns (FriendsResp)
+
+    @handler Chats
+    get /chats ()
 }
 

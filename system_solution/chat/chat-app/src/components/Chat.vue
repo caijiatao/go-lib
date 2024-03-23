@@ -9,6 +9,7 @@ const loggedIn = ref(true);
 const phoneNumber = ref('');
 const messageBody = ref('');
 const messages = ref([]);
+const value4 = ref("");
 
 function doLogin(phoneNumber) {
   login(phoneNumber)
@@ -24,6 +25,18 @@ function doSendMessage() {
 
 <template>
   <h1>Chat Server</h1>
+
+  <el-row class="row-bg">
+    <el-col :span="6"><div class="grid-content ep-bg-purple" />1</el-col>
+    <el-col :span="6"><div class="grid-content " />2</el-col>
+    <el-col :span="6"><div class="grid-content ep-bg-purple" />3</el-col>
+  </el-row>
+  <el-date-picker
+      v-model="value4"
+      type="dates"
+      placeholder="Pick one or more dates"
+  />
+
   <div>
     <div v-if="!loggedIn">
       <h2>登录</h2>

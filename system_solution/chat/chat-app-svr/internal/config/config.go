@@ -10,8 +10,9 @@ import (
 type Config struct {
 	rest.RestConf
 
-	User zrpc.RpcClientConf
-	//Chat zrpc.RpcClientConf
+	User    zrpc.RpcClientConf
+	Send    zrpc.RpcClientConf
+	Receive zrpc.RpcClientConf
 }
 
 var (
@@ -23,5 +24,5 @@ func Conf() *Config {
 }
 
 func (c *Config) GetServerID() string {
-	return net_helper.GetFigureOutListenOn(fmt.Sprintf("%s:%s", c.RestConf.Host, c.RestConf.Port))
+	return net_helper.GetFigureOutListenOn(fmt.Sprintf("%s:%d", c.RestConf.Host, c.RestConf.Port))
 }

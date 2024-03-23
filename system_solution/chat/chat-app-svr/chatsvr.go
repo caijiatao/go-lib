@@ -1,7 +1,7 @@
 package main
 
 import (
-	service "chat-app-svr/internal/logic/chat"
+	"chat-app-svr/internal/logic/chat"
 	"flag"
 	"fmt"
 	"net/http"
@@ -25,21 +25,20 @@ func main() {
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 
-	initWebsocketServer(server)
-
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
+	initWebsocketServer(server, ctx)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }
 
-func initWebsocketServer(server *rest.Server) {
+func initWebsocketServer(server *rest.Server, ctx *svc.ServiceContext) {
 	server.AddRoute(rest.Route{
 		Method: http.MethodGet,
 		Path:   "/ws/chat",
 		Handler: func(writer http.ResponseWriter, request *http.Request) {
-			service.ServeWs(writer, request)
+			chat.NewWebsocketHandler(request.Context(), ctx).ServeWs(writer, request)
 		},
 	})
 }

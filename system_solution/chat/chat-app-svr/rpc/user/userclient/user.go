@@ -13,10 +13,13 @@ import (
 )
 
 type (
+	AuthReply          = user.AuthReply
+	AuthRequest        = user.AuthRequest
 	Request            = user.Request
 	Response           = user.Response
 	UserDetailReply    = user.UserDetailReply
 	UserDetailRequest  = user.UserDetailRequest
+	UserInfo           = user.UserInfo
 	UserOfflineReply   = user.UserOfflineReply
 	UserOfflineRequest = user.UserOfflineRequest
 	UserOnlineReply    = user.UserOnlineReply
@@ -24,6 +27,7 @@ type (
 
 	User interface {
 		Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+		Auth(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthReply, error)
 		UserDetail(ctx context.Context, in *UserDetailRequest, opts ...grpc.CallOption) (*UserDetailReply, error)
 		UserOnline(ctx context.Context, in *UserOnlineRequest, opts ...grpc.CallOption) (*UserOnlineReply, error)
 		UserOffline(ctx context.Context, in *UserOfflineRequest, opts ...grpc.CallOption) (*UserOfflineReply, error)
@@ -43,6 +47,11 @@ func NewUser(cli zrpc.Client) User {
 func (m *defaultUser) Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.Ping(ctx, in, opts...)
+}
+
+func (m *defaultUser) Auth(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthReply, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.Auth(ctx, in, opts...)
 }
 
 func (m *defaultUser) UserDetail(ctx context.Context, in *UserDetailRequest, opts ...grpc.CallOption) (*UserDetailReply, error) {

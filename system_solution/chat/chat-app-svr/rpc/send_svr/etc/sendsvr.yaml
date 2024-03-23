@@ -4,3 +4,9 @@ Etcd:
   Hosts:
   - 127.0.0.1:2379
   Key: sendsvr.rpc
+
+Push:
+  Etcd:
+    Hosts:
+      - localhost:2379
+    Key: pushsvr.rpc

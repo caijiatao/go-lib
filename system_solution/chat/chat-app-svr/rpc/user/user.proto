@@ -7,7 +7,7 @@ message UserDetailRequest {
   int64 userId = 1;
 }
 
-message UserDetailReply {
+message UserInfo {
   int64 user_id = 1;
   string name = 2;
   string email = 3;
@@ -15,7 +15,11 @@ message UserDetailReply {
   string avatar = 6;
   string status = 7;
   int64 created_at = 8;
-  string server_id = 9;
+}
+
+message UserDetailReply {
+  UserInfo user_infu = 1;
+  string server_id = 2;
 }
 
 message Request {
@@ -41,8 +45,17 @@ message UserOfflineReply {
   int64 user_id = 1;
 }
 
+message AuthRequest {
+  string token = 1;
+}
+
+message AuthReply {
+  UserInfo user_info = 1;
+}
+
 service User {
   rpc Ping(Request) returns(Response);
+  rpc Auth(AuthRequest) returns (AuthReply);
   rpc UserDetail(UserDetailRequest) returns(UserDetailReply);
   rpc UserOnline(UserOnlineRequest) returns(UserOnlineReply);
   rpc UserOffline(UserOfflineRequest) returns(UserOfflineReply);

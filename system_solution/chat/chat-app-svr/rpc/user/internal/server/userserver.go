@@ -27,6 +27,11 @@ func (s *UserServer) Ping(ctx context.Context, in *user.Request) (*user.Response
 	return l.Ping(in)
 }
 
+func (s *UserServer) Auth(ctx context.Context, in *user.AuthRequest) (*user.AuthReply, error) {
+	l := logic.NewAuthLogic(ctx, s.svcCtx)
+	return l.Auth(in)
+}
+
 func (s *UserServer) UserDetail(ctx context.Context, in *user.UserDetailRequest) (*user.UserDetailReply, error) {
 	l := logic.NewUserDetailLogic(ctx, s.svcCtx)
 	return l.UserDetail(in)

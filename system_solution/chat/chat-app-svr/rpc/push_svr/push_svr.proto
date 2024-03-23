@@ -4,8 +4,9 @@ package push;
 option go_package="./push";
 
 message PushMessageRequest {
-  int64 user_id = 1;
-  string message = 2;
+  int64 from_user_id = 1;
+  int64 to_user_id = 2;
+  string content = 3;
 }
 
 message PushMessageReply {}

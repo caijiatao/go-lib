@@ -1,7 +1,11 @@
-package service
+package chat
 
 import (
+	"chat-app-svr/internal/config"
 	"chat-app-svr/internal/model"
+	"chat-app-svr/internal/svc"
+	"chat-app-svr/rpc/send_svr/send"
+	"chat-app-svr/rpc/user/user"
 	"context"
 	"encoding/json"
 	"github.com/gorilla/websocket"
@@ -12,13 +16,22 @@ import (
 )
 
 type Channel struct {
-	userId int64
-	conn   *websocket.Conn
-	send   chan []byte
+	userId   int64
+	serverID string
+	conn     *websocket.Conn
+	send     chan []byte
+
+	svcCtx *svc.ServiceContext
 }
 
-func NewChannel(userId int64, conn *websocket.Conn, send chan []byte) *Channel {
-	return &Channel{userId: userId, conn: conn, send: send}
+func NewChannel(userId int64, conn *websocket.Conn, send chan []byte, serviceContext *svc.ServiceContext) *Channel {
+	return &Channel{
+		userId:   userId,
+		serverID: config.Conf().GetServerID(),
+		conn:     conn,
+		send:     send,
+		svcCtx:   serviceContext,
+	}
 }
 
 func (c *Channel) PushMessage(message *model.Message) error {
@@ -63,7 +76,11 @@ func (c *Channel) RecvLoop() {
 				return
 			}
 			m.FromUser = c.userId
-			err = ChatService().PushMessage(ctx, m)
+			_, err = c.svcCtx.Send.SendMessage(ctx, &send.SendMessageRequest{
+				FromUserId: m.FromUser,
+				ToUserId:   m.ToUser,
+				Content:    m.Content,
+			})
 			if err != nil {
 				logger.CtxErrorf(ctx, "push message error: %v", err)
 			}
@@ -91,19 +108,25 @@ var (
 	channelManagerInitOnce = sync.Once{}
 )
 
-func ChannelManager() *manager {
+func NewChannelManager(svcCtx *svc.ServiceContext) *manager {
 	channelManagerInitOnce.Do(func() {
 		channelManager = &manager{
 			userId2Channel: make(map[int64]*Channel),
+			svcCtx:         svcCtx,
 		}
 		channelManager.run()
 	})
 	return channelManager
 }
 
+func ChannelManager() *manager {
+	return channelManager
+}
+
 type manager struct {
 	sync.RWMutex
 	userId2Channel map[int64]*Channel
+	svcCtx         *svc.ServiceContext
 
 	unregister chan *Channel
 	register   chan *Channel
@@ -125,7 +148,10 @@ func (m *manager) registerLoop() {
 				return
 			}
 			m.userId2Channel[c.userId] = c
-			err := ChatService().UserOnline(ctx, c.userId)
+			_, err := m.svcCtx.User.UserOnline(ctx, &user.UserOnlineRequest{
+				UserId:   c.userId,
+				ServerId: c.serverID,
+			})
 			if err != nil {
 				logger.CtxErrorf(ctx, "user online error: %v", err)
 			}
@@ -142,7 +168,9 @@ func (m *manager) unregisterLoop() {
 				return
 			}
 			delete(m.userId2Channel, c.userId)
-			err := ChatService().UserOffline(ctx, c.userId)
+			_, err := m.svcCtx.User.UserOffline(ctx, &user.UserOfflineRequest{
+				UserId: c.userId,
+			})
 			if err != nil {
 				logger.CtxErrorf(nil, "user offline error: %v", err)
 			}

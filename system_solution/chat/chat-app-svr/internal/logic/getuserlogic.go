@@ -31,10 +31,7 @@ func (l *GetUserLogic) GetUser(req *types.GetUserReq) (resp *types.GetUserResp, 
 		return nil, err
 	}
 
-	resp = &types.GetUserResp{
-		UserId:      detail.UserId,
-		PhoneNumber: detail.Phone,
-	}
+	resp = &types.GetUserResp{}
 
 	return resp, nil
 }

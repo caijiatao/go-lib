@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	User_Ping_FullMethodName        = "/user.User/Ping"
+	User_Auth_FullMethodName        = "/user.User/Auth"
 	User_UserDetail_FullMethodName  = "/user.User/UserDetail"
 	User_UserOnline_FullMethodName  = "/user.User/UserOnline"
 	User_UserOffline_FullMethodName = "/user.User/UserOffline"
@@ -30,6 +31,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
 	Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+	Auth(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthReply, error)
 	UserDetail(ctx context.Context, in *UserDetailRequest, opts ...grpc.CallOption) (*UserDetailReply, error)
 	UserOnline(ctx context.Context, in *UserOnlineRequest, opts ...grpc.CallOption) (*UserOnlineReply, error)
 	UserOffline(ctx context.Context, in *UserOfflineRequest, opts ...grpc.CallOption) (*UserOfflineReply, error)
@@ -46,6 +48,15 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 func (c *userClient) Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
 	err := c.cc.Invoke(ctx, User_Ping_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) Auth(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthReply, error) {
+	out := new(AuthReply)
+	err := c.cc.Invoke(ctx, User_Auth_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +95,7 @@ func (c *userClient) UserOffline(ctx context.Context, in *UserOfflineRequest, op
 // for forward compatibility
 type UserServer interface {
 	Ping(context.Context, *Request) (*Response, error)
+	Auth(context.Context, *AuthRequest) (*AuthReply, error)
 	UserDetail(context.Context, *UserDetailRequest) (*UserDetailReply, error)
 	UserOnline(context.Context, *UserOnlineRequest) (*UserOnlineReply, error)
 	UserOffline(context.Context, *UserOfflineRequest) (*UserOfflineReply, error)
@@ -96,6 +108,9 @@ type UnimplementedUserServer struct {
 
 func (UnimplementedUserServer) Ping(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
+}
+func (UnimplementedUserServer) Auth(context.Context, *AuthRequest) (*AuthReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Auth not implemented")
 }
 func (UnimplementedUserServer) UserDetail(context.Context, *UserDetailRequest) (*UserDetailReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserDetail not implemented")
@@ -133,6 +148,24 @@ func _User_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).Ping(ctx, req.(*Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_Auth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).Auth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_Auth_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).Auth(ctx, req.(*AuthRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -201,6 +234,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Ping",
 			Handler:    _User_Ping_Handler,
+		},
+		{
+			MethodName: "Auth",
+			Handler:    _User_Auth_Handler,
 		},
 		{
 			MethodName: "UserDetail",

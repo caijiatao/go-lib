@@ -4,7 +4,8 @@ import {login} from "../service/auth";
 import {sendMessage} from "../service/chat";
 import {ref} from "vue";
 
-const loggedIn = ref(false);
+
+const loggedIn = ref(true);
 const phoneNumber = ref('');
 const messageBody = ref('');
 const messages = ref([]);

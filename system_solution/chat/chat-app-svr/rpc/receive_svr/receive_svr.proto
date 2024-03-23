@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package push;
+option go_package = "./receive";
+
+message Message {
+  int64 from_user_id = 1;
+  string content = 2;
+  int64 create_at = 3;
+}
+
+message ReceiveMessageRequest {
+  int64 user_id = 1;
+  int64 from_user_id = 2;
+  int64 sequence = 3;
+}
+
+message ReceiveMessageReply {
+  repeated Message messages = 1;
+}
+
+message ReceiveGroupMessageRequest {
+  int64 user_id = 1;
+  int64 from_group_id = 2;
+  int64 sequence = 3;
+}
+
+message ReceiveGroupMessageReply {
+  repeated Message messages = 1;
+}
+
+service Receiver {
+  rpc ReceiveMessage(ReceiveMessageRequest) returns(ReceiveMessageReply);
+  rpc ReceiveGroupMessage(ReceiveGroupMessageRequest) returns(ReceiveGroupMessageReply);
+}

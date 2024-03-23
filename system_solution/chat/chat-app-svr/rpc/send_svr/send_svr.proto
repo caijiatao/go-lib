@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package push;
+option go_package="./send";
+
+message SendMessageRequest {
+  int64 from_user_id = 1;
+  int64 to_user_id = 2;
+  string content = 3;
+}
+
+message SendMessageReply {}
+
+message SendGroupMessageRequest{
+  int64 from_user_id = 1;
+  int64 to_group_id = 2;
+  string content = 3;
+}
+
+message SendGroupMessageReply{}
+
+service Sender {
+  rpc SendMessage(SendMessageRequest) returns(SendMessageReply);
+  rpc SendGroupMessage(SendGroupMessageRequest) returns(SendGroupMessageReply);
+}

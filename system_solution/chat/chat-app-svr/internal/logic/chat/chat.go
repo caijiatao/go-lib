@@ -1,6 +1,7 @@
 package service
 
 import (
+	"chat-app-svr/internal/config"
 	"chat-app-svr/internal/model"
 	"context"
 	"encoding/json"
@@ -29,14 +30,12 @@ func (cs *chatService) formatUserOnlineStatusKey(userId int64) string {
 }
 
 type onlineUserInfo struct {
-	ServiceHost string `json:"server_host"`
-	ServicePort string `json:"service_port"`
+	ServerID string `json:"server_id"`
 }
 
-func newOnlineUserInfo(serviceHost string, servicePort string) *onlineUserInfo {
+func newOnlineUserInfo(serverID string) *onlineUserInfo {
 	return &onlineUserInfo{
-		ServiceHost: serviceHost,
-		ServicePort: servicePort,
+		ServerID: serverID,
 	}
 }
 
@@ -89,7 +88,7 @@ func (cs *chatService) PushMessage(ctx context.Context, message *model.Message) 
 //
 //	@Description: 用户上线后将信息维护到ETCD中，通过ETCD可以获取用户在哪个服务器上
 func (cs *chatService) UserOnline(ctx context.Context, userId int64) error {
-	userOnlineInfo := newOnlineUserInfo(config.Conf().Env.Host, config.Conf().Env.Port)
+	userOnlineInfo := newOnlineUserInfo(config.Conf().GetServerID())
 	putResp, err := etcd_helper.Put(ctx, cs.formatUserOnlineStatusKey(userId), userOnlineInfo.String())
 	if err != nil {
 		return err

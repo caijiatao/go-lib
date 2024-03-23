@@ -31,3 +31,13 @@ func (s *UserServer) UserDetail(ctx context.Context, in *user.UserDetailRequest)
 	l := logic.NewUserDetailLogic(ctx, s.svcCtx)
 	return l.UserDetail(in)
 }
+
+func (s *UserServer) UserOnline(ctx context.Context, in *user.UserOnlineRequest) (*user.UserOnlineReply, error) {
+	l := logic.NewUserOnlineLogic(ctx, s.svcCtx)
+	return l.UserOnline(in)
+}
+
+func (s *UserServer) UserOffline(ctx context.Context, in *user.UserOfflineRequest) (*user.UserOfflineReply, error) {
+	l := logic.NewUserOfflineLogic(ctx, s.svcCtx)
+	return l.UserOffline(in)
+}

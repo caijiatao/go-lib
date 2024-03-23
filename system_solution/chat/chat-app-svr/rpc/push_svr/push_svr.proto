@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package push;
+option go_package="./push";
+
+message PushMessageRequest {
+  int64 user_id = 1;
+  string message = 2;
+}
+
+message PushMessageReply {}
+
+service Pusher {
+  rpc PushMessage(PushMessageRequest) returns(PushMessageReply);
+}

@@ -13,14 +13,20 @@ import (
 )
 
 type (
-	Request           = user.Request
-	Response          = user.Response
-	UserDetailReply   = user.UserDetailReply
-	UserDetailRequest = user.UserDetailRequest
+	Request            = user.Request
+	Response           = user.Response
+	UserDetailReply    = user.UserDetailReply
+	UserDetailRequest  = user.UserDetailRequest
+	UserOfflineReply   = user.UserOfflineReply
+	UserOfflineRequest = user.UserOfflineRequest
+	UserOnlineReply    = user.UserOnlineReply
+	UserOnlineRequest  = user.UserOnlineRequest
 
 	User interface {
 		Ping(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
 		UserDetail(ctx context.Context, in *UserDetailRequest, opts ...grpc.CallOption) (*UserDetailReply, error)
+		UserOnline(ctx context.Context, in *UserOnlineRequest, opts ...grpc.CallOption) (*UserOnlineReply, error)
+		UserOffline(ctx context.Context, in *UserOfflineRequest, opts ...grpc.CallOption) (*UserOfflineReply, error)
 	}
 
 	defaultUser struct {
@@ -42,4 +48,14 @@ func (m *defaultUser) Ping(ctx context.Context, in *Request, opts ...grpc.CallOp
 func (m *defaultUser) UserDetail(ctx context.Context, in *UserDetailRequest, opts ...grpc.CallOption) (*UserDetailReply, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.UserDetail(ctx, in, opts...)
+}
+
+func (m *defaultUser) UserOnline(ctx context.Context, in *UserOnlineRequest, opts ...grpc.CallOption) (*UserOnlineReply, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.UserOnline(ctx, in, opts...)
+}
+
+func (m *defaultUser) UserOffline(ctx context.Context, in *UserOfflineRequest, opts ...grpc.CallOption) (*UserOfflineReply, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.UserOffline(ctx, in, opts...)
 }

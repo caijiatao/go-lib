@@ -8,15 +8,14 @@ message UserDetailRequest {
 }
 
 message UserDetailReply {
-  int64 userId = 1;
+  int64 user_id = 1;
   string name = 2;
   string email = 3;
   string phone = 4;
-  string address = 5;
   string avatar = 6;
   string status = 7;
-  string createdAt = 8;
-  string updatedAt = 9;
+  int64 created_at = 8;
+  string server_id = 9;
 }
 
 message Request {
@@ -27,7 +26,24 @@ message Response {
   string pong = 1;
 }
 
+message UserOnlineRequest {
+  int64 user_id = 1;
+  string server_id = 2;
+}
+
+message UserOnlineReply {}
+
+message UserOfflineRequest{
+  int64 user_id = 1;
+}
+
+message UserOfflineReply {
+  int64 user_id = 1;
+}
+
 service User {
   rpc Ping(Request) returns(Response);
   rpc UserDetail(UserDetailRequest) returns(UserDetailReply);
+  rpc UserOnline(UserOnlineRequest) returns(UserOnlineReply);
+  rpc UserOffline(UserOfflineRequest) returns(UserOfflineReply);
 }

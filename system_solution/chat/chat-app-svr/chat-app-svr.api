@@ -56,6 +56,6 @@ service chat_svr {
     get /friends (FriendsReq) returns (FriendsResp)
 
     @handler Chats
-    get /chats ()
+    get /chats (ChatsReq) returns (ChatsResp)
 }
 

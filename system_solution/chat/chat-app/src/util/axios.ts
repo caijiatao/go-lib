@@ -32,7 +32,7 @@ export let authService = new AuthService();
 
 
 // 创建 Axios 实例
-const axiosInstance: AxiosInstance = axios.create({
+export const axiosInstance: AxiosInstance = axios.create({
     baseURL: 'http://localhost:8080', // 替换为您的 API 地址
 });
 

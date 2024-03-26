@@ -1,5 +1,5 @@
 import {ref} from "vue";
-import {authService} from "../util/axios";
+import {authService, axiosInstance} from "../util/axios";
 
 let websocket = null;
 const messages = ref([]);
@@ -29,3 +29,4 @@ const handleMessage = (event) => {
         messageBody.value = '';
     }
 };
+

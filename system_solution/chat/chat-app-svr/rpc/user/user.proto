@@ -53,10 +53,49 @@ message AuthReply {
   UserInfo user_info = 1;
 }
 
+message AddFriendRequest {
+  int64 user_id = 1;
+  int64 friend_id = 2;
+}
+
+message AddFriendReply {
+  int64 user_id = 1;
+  int64 friend_id = 2;
+}
+
+message DeleteFriendRequest {
+  int64 user_id = 1;
+  int64 friend_id = 2;
+}
+
+message DeleteFriendReply {
+  int64 user_id = 1;
+  int64 friend_id = 2;
+}
+
+message FriendListRequest {
+}
+
+message FriendListReply {
+  repeated UserInfo friend_list = 1;
+}
+
+message SearchUserRequest {
+  string keyword = 1;
+}
+
+message SearchUserReply {
+  repeated UserInfo user_list = 1;
+}
+
 service User {
   rpc Ping(Request) returns(Response);
   rpc Auth(AuthRequest) returns (AuthReply);
   rpc UserDetail(UserDetailRequest) returns(UserDetailReply);
   rpc UserOnline(UserOnlineRequest) returns(UserOnlineReply);
   rpc UserOffline(UserOfflineRequest) returns(UserOfflineReply);
+  rpc AddFriend(AddFriendRequest) returns(AddFriendReply);
+  rpc DeleteFriend(DeleteFriendRequest) returns(DeleteFriendReply);
+  rpc FriendList(FriendListRequest) returns(FriendListReply);
+  rpc SearchUser(SearchUserRequest) returns(SearchUserReply);
 }

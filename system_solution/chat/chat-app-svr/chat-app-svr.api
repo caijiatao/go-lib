@@ -7,6 +7,13 @@ info(
 )
 
 type (
+    Page {
+        PageNum int `json:"pageNum"`
+        PageSize int `json:"pageSize"`
+    }
+)
+
+type (
     GetUserReq {
         UserId int64 `form:"userId"`
     }
@@ -23,22 +30,6 @@ type (
         UserId int64 `json:"userId"`
         Token string `json:"token"`
     }
-
-    FriendsReq {
-
-    }
-    FriendsResp {
-
-    }
-
-    ChatsReq {}
-    ChatsResp {}
-
-    ChatDetailReq {}
-    ChatDetailResp {}
-
-    GroupsReq{}
-    GroupsResp{}
 )
 
 @server(
@@ -51,11 +42,99 @@ service chat_svr {
 
     @handler Login
     post /login (LoginReq) returns (LoginResp)
+}
 
-    @handler GetFriends
-    get /friends (FriendsReq) returns (FriendsResp)
 
+type (
+    ChatsReq {
+        Page
+    }
+    Chat {
+        UserId int64 `json:"userId"`
+        PhoneNumber string `json:"phoneNumber"`
+        Name string `json:"name"`
+        LastMsg string `json:"lastMsg"`
+        LastMsgTime int64 `json:"lastMsgTime"`
+    }
+    ChatsResp {
+        Chats []Chat `json:"chats"`
+    }
+
+    ChatDetailReq {
+        UserId int64 `form:"userId"`
+    }
+    Message {
+        UserId int64 `json:"userId"`
+        Content string `json:"content"`
+        Time int64 `json:"time"`
+    }
+    ChatDetailResp {
+        UserId int64 `json:"userId"`
+        PhoneNumber string `json:"phoneNumber"`
+        Name string `json:"name"`
+        Messages []Message `json:"messages"`
+    }
+)
+@server(
+    prefix: /v1/chat
+    group: chat
+)
+service chat_svr {
     @handler Chats
     get /chats (ChatsReq) returns (ChatsResp)
+
+    @handler ChatDetail
+    get /chat/detail (ChatDetailReq) returns (ChatDetailResp)
+}
+
+type (
+    FriendsReq{
+        Page
+    }
+    Friend {
+        UserId int64 `json:"userId"`
+        PhoneNumber string `json:"phoneNumber"`
+        Name string `json:"name"`
+    }
+    FriendsResp {
+        Friends []Friend `json:"friends"`
+    }
+
+    SearchUserReq {
+        PhoneNumber string `form:"phoneNumber"`
+    }
+    SearchUserResp {
+        UserId int64 `json:"userId"`
+        PhoneNumber string `json:"phoneNumber"`
+        Name string `json:"name"`
+    }
+
+    AddFriendReq {
+        UserId int64 `form:"userId"`
+    }
+    AddFriendResp {}
+
+    DeleteFriendReq {
+        UserId int64 `form:"userId"`
+    }
+    DeleteFriendResp {}
+)
+
+@server(
+    prefix: /v1/friend
+    group: friend
+)
+service chat_svr {
+    @handler AddFriend
+    post /add (Friend) returns (Friend)
+
+    @handler DeleteFriend
+    post /delete (DeleteFriendReq) returns (DeleteFriendResp)
+
+    @handler SearchUser
+    get /search (SearchUserReq) returns (SearchUserResp)
+
+    @handler GetFriends
+    get /list (FriendsReq) returns (FriendsResp)
 }
 

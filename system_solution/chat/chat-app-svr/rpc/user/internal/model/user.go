@@ -11,3 +11,11 @@ type User struct {
 	CreateTime  time.Time `json:"createTime"`
 	UpdateTime  time.Time `json:"updateTime"`
 }
+
+type UserFriend struct {
+	Id         int64     `json:"id"`
+	UserId     int64     `json:"userId"`
+	FriendId   int64     `json:"friendId"`
+	CreateTime time.Time `json:"createTime"`
+	UpdateTime time.Time `json:"updateTime"`
+}

@@ -10,11 +10,3 @@ export function getFriends() {
         console.log(error);
     });
 }
-
-export function getFriendMessages(friendId: number) {
-    axiosInstance.get(`/api/friends/${friendId}/messages`).then((response) => {
-        console.log(response.data);
-    }).catch((error) => {
-        console.log(error);
-    });
-}

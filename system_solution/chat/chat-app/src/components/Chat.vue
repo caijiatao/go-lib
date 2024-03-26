@@ -35,13 +35,6 @@ function handleSelectFriend(index) {
 }
 
 function loadMessagesForFriend(friendId) {
-  // TODO: 根据friendId加载与该好友的聊天消息
-  // 示例代码
-  messages = [
-    {id: 1, content: '你好，张三！'},
-    {id: 2, content: '你好，李四！'},
-    {id: 3, content: '你好，王五！'}
-  ];
 }
 
 </script>

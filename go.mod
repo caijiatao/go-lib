@@ -21,7 +21,6 @@ require (
 	github.com/jackc/pgx/v5 v5.5.3
 	github.com/json-iterator/go v1.1.12
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
-	github.com/neo4j/neo4j-go-driver/v5 v5.18.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.5.1
@@ -29,6 +28,7 @@ require (
 	github.com/rs/zerolog v1.30.0
 	github.com/shirou/gopsutil/v3 v3.24.1
 	github.com/sirupsen/logrus v1.9.3
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.9.0
 	github.com/yuin/gopher-lua v1.1.1
@@ -98,6 +98,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect

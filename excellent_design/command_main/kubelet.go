@@ -12,10 +12,6 @@ var (
 )
 
 func runKubelet(cmd *cobra.Command, args []string) error {
-	//err := cmd.Execute()
-	//if err != nil {
-	//	return err
-	//}
 	fmt.Println(args)
 	return nil
 }
@@ -31,13 +27,6 @@ func NewCommand() *cobra.Command {
 			}
 		},
 	}
-	//cmd.Flags().StringVar(&cfgFile, "config", "", "Path to the kubelet config file")
-	//cmd.Flags().IntVar(&port, "port", 10250, "Port to listen on")
-	//err := cmd.ParseFlags(os.Args)
-	//if err != nil {
-	//	fmt.Fprintf(os.Stderr, "%v\n", err)
-	//	os.Exit(1)
-	//}
 	fmt.Println(cfgFile)
 	fmt.Println(port)
 	return cmd

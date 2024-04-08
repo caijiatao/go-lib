@@ -384,3 +384,19 @@
   ]
 }
 ```
+
+
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": {
+    "uid": "123456",
+    "name": "",
+    "age": "",
+    "institution": "",
+    "topic": "",
+    "gender": 1
+  }
+}
+```

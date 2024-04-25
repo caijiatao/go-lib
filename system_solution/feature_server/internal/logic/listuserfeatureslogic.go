@@ -24,7 +24,7 @@ func NewListUserFeaturesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *ListUserFeaturesLogic) ListUserFeatures(in *feature.UserFeatureRequest, stream feature.FeatureServer_ListUserFeaturesServer) error {
-	for i := 0; i < 10; i++ {
+	for i := in.GetOffset(); i < 100; i++ {
 		err := stream.Send(&feature.UserFeature{
 			UserId: int64(i),
 			Name:   "test",

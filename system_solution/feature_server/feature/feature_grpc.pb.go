@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	FeatureServer_ListUserFeatures_FullMethodName    = "/push.FeatureServer/ListUserFeatures"
-	FeatureServer_ListArticleFeatures_FullMethodName = "/push.FeatureServer/ListArticleFeatures"
+	FeatureServer_ListUserFeatures_FullMethodName    = "/feature.FeatureServer/ListUserFeatures"
+	FeatureServer_ListArticleFeatures_FullMethodName = "/feature.FeatureServer/ListArticleFeatures"
 )
 
 // FeatureServerClient is the client API for FeatureServer service.
@@ -181,7 +181,7 @@ func (x *featureServerListArticleFeaturesServer) Send(m *ArticleFeature) error {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var FeatureServer_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "push.FeatureServer",
+	ServiceName: "feature.FeatureServer",
 	HandlerType: (*FeatureServerServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{

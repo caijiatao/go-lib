@@ -28,8 +28,7 @@ func (l *ListUserFeaturesLogic) ListUserFeatures(in *feature.UserFeatureRequest,
 	for i := 0; i < 10000; i++ {
 		time.Sleep(time.Second)
 		err := stream.Send(&feature.UserFeature{
-			UserId: i,
-			Name:   "test",
+			Name: "test",
 		})
 		if err != nil {
 			return err

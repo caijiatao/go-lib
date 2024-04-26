@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"time"
 
 	"feature_server/feature"
 	"feature_server/internal/svc"
@@ -24,9 +25,10 @@ func NewListUserFeaturesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *ListUserFeaturesLogic) ListUserFeatures(in *feature.UserFeatureRequest, stream feature.FeatureServer_ListUserFeaturesServer) error {
-	for i := in.GetOffset(); i < 100; i++ {
+	for i := 0; i < 10000; i++ {
+		time.Sleep(time.Second)
 		err := stream.Send(&feature.UserFeature{
-			UserId: int64(i),
+			UserId: i,
 			Name:   "test",
 		})
 		if err != nil {

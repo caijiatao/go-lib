@@ -13,14 +13,26 @@ import (
 )
 
 type (
-	ArticleFeature        = feature.ArticleFeature
-	ArticleFeatureRequest = feature.ArticleFeatureRequest
-	UserFeature           = feature.UserFeature
-	UserFeatureRequest    = feature.UserFeatureRequest
+	ArticleFeature                  = feature.ArticleFeature
+	ArticleFeatureRequest           = feature.ArticleFeatureRequest
+	BehaviorFeatureRequest          = feature.BehaviorFeatureRequest
+	BehaviorFeatureResponse         = feature.BehaviorFeatureResponse
+	CooperatorFeatureRequest        = feature.CooperatorFeatureRequest
+	CooperatorFeatureResponse       = feature.CooperatorFeatureResponse
+	PublishedPaperFeatureRequest    = feature.PublishedPaperFeatureRequest
+	PublishedPaperFeatureResponse   = feature.PublishedPaperFeatureResponse
+	SubmittedJournalFeatureRequest  = feature.SubmittedJournalFeatureRequest
+	SubmittedJournalFeatureResponse = feature.SubmittedJournalFeatureResponse
+	UserFeature                     = feature.UserFeature
+	UserFeatureRequest              = feature.UserFeatureRequest
 
 	FeatureServer interface {
 		ListUserFeatures(ctx context.Context, in *UserFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListUserFeaturesClient, error)
 		ListArticleFeatures(ctx context.Context, in *ArticleFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListArticleFeaturesClient, error)
+		ListBehaviorFeatures(ctx context.Context, in *BehaviorFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListBehaviorFeaturesClient, error)
+		ListCooperatorFeatures(ctx context.Context, in *CooperatorFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListCooperatorFeaturesClient, error)
+		ListSubmittedJournalFeatures(ctx context.Context, in *SubmittedJournalFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListSubmittedJournalFeaturesClient, error)
+		ListPublishedPaperFeatures(ctx context.Context, in *PublishedPaperFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListPublishedPaperFeaturesClient, error)
 	}
 
 	defaultFeatureServer struct {
@@ -42,4 +54,24 @@ func (m *defaultFeatureServer) ListUserFeatures(ctx context.Context, in *UserFea
 func (m *defaultFeatureServer) ListArticleFeatures(ctx context.Context, in *ArticleFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListArticleFeaturesClient, error) {
 	client := feature.NewFeatureServerClient(m.cli.Conn())
 	return client.ListArticleFeatures(ctx, in, opts...)
+}
+
+func (m *defaultFeatureServer) ListBehaviorFeatures(ctx context.Context, in *BehaviorFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListBehaviorFeaturesClient, error) {
+	client := feature.NewFeatureServerClient(m.cli.Conn())
+	return client.ListBehaviorFeatures(ctx, in, opts...)
+}
+
+func (m *defaultFeatureServer) ListCooperatorFeatures(ctx context.Context, in *CooperatorFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListCooperatorFeaturesClient, error) {
+	client := feature.NewFeatureServerClient(m.cli.Conn())
+	return client.ListCooperatorFeatures(ctx, in, opts...)
+}
+
+func (m *defaultFeatureServer) ListSubmittedJournalFeatures(ctx context.Context, in *SubmittedJournalFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListSubmittedJournalFeaturesClient, error) {
+	client := feature.NewFeatureServerClient(m.cli.Conn())
+	return client.ListSubmittedJournalFeatures(ctx, in, opts...)
+}
+
+func (m *defaultFeatureServer) ListPublishedPaperFeatures(ctx context.Context, in *PublishedPaperFeatureRequest, opts ...grpc.CallOption) (feature.FeatureServer_ListPublishedPaperFeaturesClient, error) {
+	client := feature.NewFeatureServerClient(m.cli.Conn())
+	return client.ListPublishedPaperFeatures(ctx, in, opts...)
 }

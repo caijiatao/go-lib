@@ -1,26 +1,131 @@
 syntax = "proto3";
 
 package feature;
-option go_package="./feature";
+option go_package = "./feature";
 
 message UserFeatureRequest {
-  int64 offset = 1;
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_time = 1;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 2;
 }
 
 message UserFeature {
-  int64 user_id = 1;
+  string uid = 1;
   string name = 2;
+  float weight = 3;
+  string age = 4;
+  string gender = 5;
+  string direction = 6;
+  string topic = 7;
+  string birthday = 8;
+  string institution = 9;
 }
 
-message ArticleFeatureRequest {}
+message ArticleFeatureRequest {
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_time = 1;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 2;
+}
 
 message ArticleFeature {
-  int64 article_id = 1;
+  string article_id = 1;
   string title = 2;
   string content = 3;
+  string category_level = 4;
+  string tags = 5;
+  string author = 6;
+  string impact_factor = 7;
+  string bhv_time = 8;
+  float weight = 9;
+  string age = 10;
+  string year = 11;
+  string issue = 12;
+  string volume = 13;
+  string indexed = 14;
+  string organization = 15;
+}
+
+message BehaviorFeatureRequest {
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_time = 1;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 2;
+}
+
+message BehaviorFeatureResponse {
+  string uid = 1;
+  string article_id = 2;
+  string bhv_time = 3;
+  float weight = 4;
+}
+
+message CooperatorFeatureRequest{
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_time = 1;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 2;
+}
+
+message CooperatorFeatureResponse{
+  string uid = 1;
+  string oid = 2;
+  float num = 3;
+}
+
+message SubmittedJournalFeatureRequest{
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_time = 1;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 2;
+}
+
+message SubmittedJournalFeatureResponse{
+  string name = 1;
+  string impact_factor = 2;
+  string num = 3;
+  string id = 4;
+  string uid = 5;
+}
+
+message PublishedPaperFeatureRequest{
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_time = 1;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 2;
+}
+
+message PublishedPaperFeatureResponse{
+  string item_id = 1;
+  string status = 2;
+  string scene_id = 3;
+  string pub_time = 4;
+  string title = 5;
+  string weight = 6;
+  string category_level = 7;
+  string category_path = 8;
+  string tags = 9;
+  string author = 10;
+  string year = 11;
+  string volume = 12;
+  string issue = 13;
+  string indexed = 14;
+  string impact_factor = 15;
+  string content = 16;
+  string organization = 17;
+  string click_cnt = 18;
+  string like_cnt = 19;
+  string collect_cnt = 20;
+  string download_cnt = 21;
+  string uid = 22;
 }
 
 service FeatureServer {
   rpc ListUserFeatures(UserFeatureRequest) returns(stream UserFeature) {};
   rpc ListArticleFeatures(ArticleFeatureRequest) returns(stream ArticleFeature) {};
+  rpc ListBehaviorFeatures(BehaviorFeatureRequest) returns(stream BehaviorFeatureResponse) {};
+  rpc ListCooperatorFeatures(CooperatorFeatureRequest) returns(stream CooperatorFeatureResponse) {};
+  rpc ListSubmittedJournalFeatures(SubmittedJournalFeatureRequest) returns(stream SubmittedJournalFeatureResponse) {};
+  rpc ListPublishedPaperFeatures(PublishedPaperFeatureRequest) returns(stream PublishedPaperFeatureResponse) {};
 }

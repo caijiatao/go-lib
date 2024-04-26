@@ -29,3 +29,23 @@ func (s *FeatureServerServer) ListArticleFeatures(in *feature.ArticleFeatureRequ
 	l := logic.NewListArticleFeaturesLogic(stream.Context(), s.svcCtx)
 	return l.ListArticleFeatures(in, stream)
 }
+
+func (s *FeatureServerServer) ListBehaviorFeatures(in *feature.BehaviorFeatureRequest, stream feature.FeatureServer_ListBehaviorFeaturesServer) error {
+	l := logic.NewListBehaviorFeaturesLogic(stream.Context(), s.svcCtx)
+	return l.ListBehaviorFeatures(in, stream)
+}
+
+func (s *FeatureServerServer) ListCooperatorFeatures(in *feature.CooperatorFeatureRequest, stream feature.FeatureServer_ListCooperatorFeaturesServer) error {
+	l := logic.NewListCooperatorFeaturesLogic(stream.Context(), s.svcCtx)
+	return l.ListCooperatorFeatures(in, stream)
+}
+
+func (s *FeatureServerServer) ListSubmittedJournalFeatures(in *feature.SubmittedJournalFeatureRequest, stream feature.FeatureServer_ListSubmittedJournalFeaturesServer) error {
+	l := logic.NewListSubmittedJournalFeaturesLogic(stream.Context(), s.svcCtx)
+	return l.ListSubmittedJournalFeatures(in, stream)
+}
+
+func (s *FeatureServerServer) ListPublishedPaperFeatures(in *feature.PublishedPaperFeatureRequest, stream feature.FeatureServer_ListPublishedPaperFeaturesServer) error {
+	l := logic.NewListPublishedPaperFeaturesLogic(stream.Context(), s.svcCtx)
+	return l.ListPublishedPaperFeatures(in, stream)
+}

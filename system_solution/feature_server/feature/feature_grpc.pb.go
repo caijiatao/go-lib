@@ -19,8 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	FeatureServer_ListUserFeatures_FullMethodName    = "/feature.FeatureServer/ListUserFeatures"
-	FeatureServer_ListArticleFeatures_FullMethodName = "/feature.FeatureServer/ListArticleFeatures"
+	FeatureServer_ListUserFeatures_FullMethodName             = "/feature.FeatureServer/ListUserFeatures"
+	FeatureServer_ListArticleFeatures_FullMethodName          = "/feature.FeatureServer/ListArticleFeatures"
+	FeatureServer_ListBehaviorFeatures_FullMethodName         = "/feature.FeatureServer/ListBehaviorFeatures"
+	FeatureServer_ListCooperatorFeatures_FullMethodName       = "/feature.FeatureServer/ListCooperatorFeatures"
+	FeatureServer_ListSubmittedJournalFeatures_FullMethodName = "/feature.FeatureServer/ListSubmittedJournalFeatures"
+	FeatureServer_ListPublishedPaperFeatures_FullMethodName   = "/feature.FeatureServer/ListPublishedPaperFeatures"
 )
 
 // FeatureServerClient is the client API for FeatureServer service.
@@ -29,6 +33,10 @@ const (
 type FeatureServerClient interface {
 	ListUserFeatures(ctx context.Context, in *UserFeatureRequest, opts ...grpc.CallOption) (FeatureServer_ListUserFeaturesClient, error)
 	ListArticleFeatures(ctx context.Context, in *ArticleFeatureRequest, opts ...grpc.CallOption) (FeatureServer_ListArticleFeaturesClient, error)
+	ListBehaviorFeatures(ctx context.Context, in *BehaviorFeatureRequest, opts ...grpc.CallOption) (FeatureServer_ListBehaviorFeaturesClient, error)
+	ListCooperatorFeatures(ctx context.Context, in *CooperatorFeatureRequest, opts ...grpc.CallOption) (FeatureServer_ListCooperatorFeaturesClient, error)
+	ListSubmittedJournalFeatures(ctx context.Context, in *SubmittedJournalFeatureRequest, opts ...grpc.CallOption) (FeatureServer_ListSubmittedJournalFeaturesClient, error)
+	ListPublishedPaperFeatures(ctx context.Context, in *PublishedPaperFeatureRequest, opts ...grpc.CallOption) (FeatureServer_ListPublishedPaperFeaturesClient, error)
 }
 
 type featureServerClient struct {
@@ -103,12 +111,144 @@ func (x *featureServerListArticleFeaturesClient) Recv() (*ArticleFeature, error)
 	return m, nil
 }
 
+func (c *featureServerClient) ListBehaviorFeatures(ctx context.Context, in *BehaviorFeatureRequest, opts ...grpc.CallOption) (FeatureServer_ListBehaviorFeaturesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &FeatureServer_ServiceDesc.Streams[2], FeatureServer_ListBehaviorFeatures_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &featureServerListBehaviorFeaturesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type FeatureServer_ListBehaviorFeaturesClient interface {
+	Recv() (*BehaviorFeatureResponse, error)
+	grpc.ClientStream
+}
+
+type featureServerListBehaviorFeaturesClient struct {
+	grpc.ClientStream
+}
+
+func (x *featureServerListBehaviorFeaturesClient) Recv() (*BehaviorFeatureResponse, error) {
+	m := new(BehaviorFeatureResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *featureServerClient) ListCooperatorFeatures(ctx context.Context, in *CooperatorFeatureRequest, opts ...grpc.CallOption) (FeatureServer_ListCooperatorFeaturesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &FeatureServer_ServiceDesc.Streams[3], FeatureServer_ListCooperatorFeatures_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &featureServerListCooperatorFeaturesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type FeatureServer_ListCooperatorFeaturesClient interface {
+	Recv() (*CooperatorFeatureResponse, error)
+	grpc.ClientStream
+}
+
+type featureServerListCooperatorFeaturesClient struct {
+	grpc.ClientStream
+}
+
+func (x *featureServerListCooperatorFeaturesClient) Recv() (*CooperatorFeatureResponse, error) {
+	m := new(CooperatorFeatureResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *featureServerClient) ListSubmittedJournalFeatures(ctx context.Context, in *SubmittedJournalFeatureRequest, opts ...grpc.CallOption) (FeatureServer_ListSubmittedJournalFeaturesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &FeatureServer_ServiceDesc.Streams[4], FeatureServer_ListSubmittedJournalFeatures_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &featureServerListSubmittedJournalFeaturesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type FeatureServer_ListSubmittedJournalFeaturesClient interface {
+	Recv() (*SubmittedJournalFeatureResponse, error)
+	grpc.ClientStream
+}
+
+type featureServerListSubmittedJournalFeaturesClient struct {
+	grpc.ClientStream
+}
+
+func (x *featureServerListSubmittedJournalFeaturesClient) Recv() (*SubmittedJournalFeatureResponse, error) {
+	m := new(SubmittedJournalFeatureResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *featureServerClient) ListPublishedPaperFeatures(ctx context.Context, in *PublishedPaperFeatureRequest, opts ...grpc.CallOption) (FeatureServer_ListPublishedPaperFeaturesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &FeatureServer_ServiceDesc.Streams[5], FeatureServer_ListPublishedPaperFeatures_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &featureServerListPublishedPaperFeaturesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type FeatureServer_ListPublishedPaperFeaturesClient interface {
+	Recv() (*PublishedPaperFeatureResponse, error)
+	grpc.ClientStream
+}
+
+type featureServerListPublishedPaperFeaturesClient struct {
+	grpc.ClientStream
+}
+
+func (x *featureServerListPublishedPaperFeaturesClient) Recv() (*PublishedPaperFeatureResponse, error) {
+	m := new(PublishedPaperFeatureResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // FeatureServerServer is the server API for FeatureServer service.
 // All implementations must embed UnimplementedFeatureServerServer
 // for forward compatibility
 type FeatureServerServer interface {
 	ListUserFeatures(*UserFeatureRequest, FeatureServer_ListUserFeaturesServer) error
 	ListArticleFeatures(*ArticleFeatureRequest, FeatureServer_ListArticleFeaturesServer) error
+	ListBehaviorFeatures(*BehaviorFeatureRequest, FeatureServer_ListBehaviorFeaturesServer) error
+	ListCooperatorFeatures(*CooperatorFeatureRequest, FeatureServer_ListCooperatorFeaturesServer) error
+	ListSubmittedJournalFeatures(*SubmittedJournalFeatureRequest, FeatureServer_ListSubmittedJournalFeaturesServer) error
+	ListPublishedPaperFeatures(*PublishedPaperFeatureRequest, FeatureServer_ListPublishedPaperFeaturesServer) error
 	mustEmbedUnimplementedFeatureServerServer()
 }
 
@@ -121,6 +261,18 @@ func (UnimplementedFeatureServerServer) ListUserFeatures(*UserFeatureRequest, Fe
 }
 func (UnimplementedFeatureServerServer) ListArticleFeatures(*ArticleFeatureRequest, FeatureServer_ListArticleFeaturesServer) error {
 	return status.Errorf(codes.Unimplemented, "method ListArticleFeatures not implemented")
+}
+func (UnimplementedFeatureServerServer) ListBehaviorFeatures(*BehaviorFeatureRequest, FeatureServer_ListBehaviorFeaturesServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListBehaviorFeatures not implemented")
+}
+func (UnimplementedFeatureServerServer) ListCooperatorFeatures(*CooperatorFeatureRequest, FeatureServer_ListCooperatorFeaturesServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListCooperatorFeatures not implemented")
+}
+func (UnimplementedFeatureServerServer) ListSubmittedJournalFeatures(*SubmittedJournalFeatureRequest, FeatureServer_ListSubmittedJournalFeaturesServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListSubmittedJournalFeatures not implemented")
+}
+func (UnimplementedFeatureServerServer) ListPublishedPaperFeatures(*PublishedPaperFeatureRequest, FeatureServer_ListPublishedPaperFeaturesServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListPublishedPaperFeatures not implemented")
 }
 func (UnimplementedFeatureServerServer) mustEmbedUnimplementedFeatureServerServer() {}
 
@@ -177,6 +329,90 @@ func (x *featureServerListArticleFeaturesServer) Send(m *ArticleFeature) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _FeatureServer_ListBehaviorFeatures_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(BehaviorFeatureRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(FeatureServerServer).ListBehaviorFeatures(m, &featureServerListBehaviorFeaturesServer{stream})
+}
+
+type FeatureServer_ListBehaviorFeaturesServer interface {
+	Send(*BehaviorFeatureResponse) error
+	grpc.ServerStream
+}
+
+type featureServerListBehaviorFeaturesServer struct {
+	grpc.ServerStream
+}
+
+func (x *featureServerListBehaviorFeaturesServer) Send(m *BehaviorFeatureResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _FeatureServer_ListCooperatorFeatures_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(CooperatorFeatureRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(FeatureServerServer).ListCooperatorFeatures(m, &featureServerListCooperatorFeaturesServer{stream})
+}
+
+type FeatureServer_ListCooperatorFeaturesServer interface {
+	Send(*CooperatorFeatureResponse) error
+	grpc.ServerStream
+}
+
+type featureServerListCooperatorFeaturesServer struct {
+	grpc.ServerStream
+}
+
+func (x *featureServerListCooperatorFeaturesServer) Send(m *CooperatorFeatureResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _FeatureServer_ListSubmittedJournalFeatures_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SubmittedJournalFeatureRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(FeatureServerServer).ListSubmittedJournalFeatures(m, &featureServerListSubmittedJournalFeaturesServer{stream})
+}
+
+type FeatureServer_ListSubmittedJournalFeaturesServer interface {
+	Send(*SubmittedJournalFeatureResponse) error
+	grpc.ServerStream
+}
+
+type featureServerListSubmittedJournalFeaturesServer struct {
+	grpc.ServerStream
+}
+
+func (x *featureServerListSubmittedJournalFeaturesServer) Send(m *SubmittedJournalFeatureResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _FeatureServer_ListPublishedPaperFeatures_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(PublishedPaperFeatureRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(FeatureServerServer).ListPublishedPaperFeatures(m, &featureServerListPublishedPaperFeaturesServer{stream})
+}
+
+type FeatureServer_ListPublishedPaperFeaturesServer interface {
+	Send(*PublishedPaperFeatureResponse) error
+	grpc.ServerStream
+}
+
+type featureServerListPublishedPaperFeaturesServer struct {
+	grpc.ServerStream
+}
+
+func (x *featureServerListPublishedPaperFeaturesServer) Send(m *PublishedPaperFeatureResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // FeatureServer_ServiceDesc is the grpc.ServiceDesc for FeatureServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -193,6 +429,26 @@ var FeatureServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "ListArticleFeatures",
 			Handler:       _FeatureServer_ListArticleFeatures_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListBehaviorFeatures",
+			Handler:       _FeatureServer_ListBehaviorFeatures_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListCooperatorFeatures",
+			Handler:       _FeatureServer_ListCooperatorFeatures_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListSubmittedJournalFeatures",
+			Handler:       _FeatureServer_ListSubmittedJournalFeatures_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListPublishedPaperFeatures",
+			Handler:       _FeatureServer_ListPublishedPaperFeatures_Handler,
 			ServerStreams: true,
 		},
 	},

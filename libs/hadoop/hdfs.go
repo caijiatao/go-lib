@@ -18,7 +18,6 @@ func ReadFile() {
 		return
 	}
 	fmt.Println(read)
-
 	fmt.Println(string(buf))
 }
 

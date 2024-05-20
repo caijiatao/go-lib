@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rock-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rock-backend
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: rock-backend
+    spec:
+      volumes:
+#        - name: data
+          # persistentVolumeClaim:
+          #   claimName: ghrec-server-pvc
+
+        # 挂载一个名为rock-backend-conf的configMap卷,这个cm卷已经定义好了
+        - name: rock-backend-conf
+          configMap:
+            name: rock-backend-conf
+            items:
+              - key: config.yml
+                path: config.yml
+      containers:
+        - name: rock-backend
+          image: harbor.grandhoo.com/airec/rock-backend-sjs
+          ports:
+            - containerPort: 28080
+              protocol: TCP
+          resources:
+            limits:
+              cpu: "2"
+              memory: 12000Mi
+            requests:
+              cpu: 100m
+              memory: 1Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+#            - name: data
+#              mountPath: /go/src/rock_backend/var/log
+#              subPath: rock-backend/logs
+#            - name: data
+#              mountPath: /pg_file_source_tmp
+#              subPath: rock-backend/pg_file_source_tmp
+            - name: rock-backend-conf
+              mountPath: /go/src/rock-backend-sjs/config/config.yml
+              subPath: config.yml
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rock-backend
+spec:
+  ports:
+    - protocol: TCP
+      port: 28080
+      targetPort: 28080
+      nodePort: 28081
+  selector:
+    app: rock-backend
+  type: NodePort
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:13
+          imagePullPolicy: "IfNotPresent"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "2500Mi"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_USER
+              value: rock
+            - name: POSTGRES_DATABASE
+              value: rock_meta
+            - name: POSTGRES_PASSWORD
+              value: "rockPoD@2020"
+            - name: POSTGRES_ROOT_PASSWORD
+              value: "123456"
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb
+#            - mountPath: /pg_file_source_tmp
+#              subPath: rock-backend/pg_file_source_tmp
+#              name: postgres-foreign
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: rock-postgres-pvc
+#        - name: postgres-foreign
+#          persistentVolumeClaim:
+#            claimName: rock-server-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  type: NodePort
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      nodePort: 10432
+

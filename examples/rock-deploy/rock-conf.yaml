@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rock-backend-conf
+  labels:
+    app: rock-backend
+data:
+  config.yml: |-
+    # config.yml 默认配置文件.修改后需重启应用
+    server_config:
+      # http端口
+      http_port: 28080
+      #日志监控
+      sentry_dsn: http://7b37e7ed6ed54a738dc08673539f1044@192.168.16.215:9000/6
+      #最大使用内存，单位GB
+      max_memory: 8
+    
+    #内嵌PG。不要修改以下PG参数，但如果PG端口冲突可修改端口
+    pg_config:
+      host: postgres-service
+      port: 5432
+      user: rock
+      password: rockPoD@2020
+      dbname: rock_meta
+      max_open_conns: 20
+      max_idle_conns: 10
+    
+    # 日志配置
+    logger_config:
+      # 日志打印等级，[debug, info, warn, err]
+      level: "debug"
+      # 日志存放路径，当前目录的log文件夹
+      path: "log"
+      # 最大存放时间，180天，超过180天的日志会删除
+      max_age: 180
+      # 日志按时间分割，单位小时，定义24小时为一天
+      rotation_time: 24
+      # 日志按大小分割，单位MB，默认为100MB
+      rotation_size: 100
+    
+    # 剖析统计
+    statistics_config:
+      #若存储类型为“数值”，则判断取值数量个数，若为100以下且占总数比例小于5%，则认为是“标称变量”；否则为“数值变量”。
+      #若存储类型为“字符串”，则判断取值数量个数，若为100以下且占总数比例小于5%，则认为是“标称变量”；否则为“文本变量”。
+      # 取值数。
+      cardinality: 100
+      # 取值数占总数比例
+      percentage: 0.05
+    
+    # 存储配置
+    storage_config:
+      page_pool_size_gb: 5
+      # 数据表最大长度
+      data_max_length: 2000000000
+      # 绑定表最大长度
+      bind_max_length: 5000
+
+    
+
+

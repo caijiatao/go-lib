@@ -1,0 +1,29 @@
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rock-postgres-pv
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  glusterfs:						#定义gluster的信息
+    endpoints: glusterfs-cluster 	#指定glusterfs的endpoint
+    endpointsNamespace: sjs		#指定glusterfs的endpoint的所属命名空间
+    path: k8s-data			#指定glusterfs的卷名称
+    readOnly: false
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rock-postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi

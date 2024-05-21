@@ -1,0 +1,1 @@
+docker build -f ./docker-example/Dockerfile -t docker-example:latest .

@@ -16,10 +16,8 @@ RUN apt-get update --fix-missing && \
 COPY . .
 
 RUN cd ./docker-example \
-    && git config --global url."ssh://git@gitlab.grandhoo.com/".insteadOf "https://gitlab.grandhoo.com/" \
     && go env -w GO111MODULE=on \
     && go env -w GOPROXY=https://goproxy.cn,direct \
-    && go env -w GOPRIVATE=gitlab.grandhoo.com \
     && go env \
     && go mod tidy \
     && go build -o docker-example main.go

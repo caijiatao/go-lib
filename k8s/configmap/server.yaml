@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: server
+    spec:
+      serviceAccountName: server-client
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ghrec-server-pvc
+
+        # 挂载一个名为server-conf的configMap卷,这个cm卷已经定义好了
+        #- name: server-conf
+        #  configMap:
+        #    name: server-conf-map
+        #    items:
+        #      - key: k8s-conf.yml
+        #        path: k8s-conf.yml
+      containers:
+        - name: server
+          image: server:latest
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              cpu: '2'
+              memory: 12000Mi
+            requests:
+              cpu: 100m
+              memory: 1Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: data
+              mountPath: /go/src/airec_server/var/log
+              subPath: server/logs
+            - name: data
+              mountPath: /pg_file_source_tmp
+              subPath: server/pg_file_source_tmp
+            #- name: server-conf
+            #  mountPath: /go/src/airec_server/configs
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+spec:
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 8081
+  selector:
+    app: server
+  type: NodePort
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster

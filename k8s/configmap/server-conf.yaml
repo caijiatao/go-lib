@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airec-server-conf-map
+  labels:
+    app: airec-server
+data:
+  k8s-conf.yml: |
+    server_config:
+      server_name: "airec-server"
+      http_port: "8080"
+      https_use: false
+      https_port: "8043"
+      demo_server: false
+  os_config: "linux"

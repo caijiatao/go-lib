@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.14.2
+          ports:
+            - containerPort: 80
+      affinity:
+        podAntiAffinity: # 工作负载反亲和
+          preferredDuringSchedulingIgnoredDuringExecution: # 尽量满足如下条件
+            - weight: 100  # 使用尽量满足策略时可设置优先级，取值为1-100，数值越大优先级越高
+              podAffinityTerm:
+                labelSelector: # 选择Pod的标签，与工作负载本身反亲和
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - nginx
+                topologyKey: kubernetes.io/hostname     # 在节点上起作用
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: NodePort
+  selector:
+    app: nginx
+  ports:
+    - name: http
+      port: 8080
+      nodePort: 48080 # 对外暴露的pod
+      targetPort: 80

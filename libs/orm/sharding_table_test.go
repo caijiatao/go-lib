@@ -3,6 +3,9 @@ package orm
 import (
 	"encoding/csv"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
+	"gorm.io/sharding"
 	"os"
 	"testing"
 )
@@ -32,7 +35,7 @@ func TestGetShardingTableIndex(t *testing.T) {
 			continue
 		}
 		isRecord[userId] = true
-		userIds[GetShardingTableIndex(userId, 100)]++
+		userIds[GetShardingTableIndex(userId, 128)]++
 	}
 
 	fmt.Println(userIds)
@@ -64,9 +67,30 @@ func TestUserSharding(t *testing.T) {
 			continue
 		}
 		isRecord[userId] = true
-		userIds[GetShardingTableIndex(userId, 100)]++
+		userIds[GetShardingTableIndex(userId, 128)]++
 	}
 
 	fmt.Println(userIds)
 	fmt.Println(len(userIds))
+}
+
+func TestGetShardingTableIndex1(t *testing.T) {
+	tableIndex := GetShardingTableIndex("1", 128)
+	fmt.Println(tableIndex)
+}
+
+func TestRegisterSharding(t *testing.T) {
+	var err error
+	var db gorm.DB
+	err = db.Use(sharding.Register(sharding.Config{
+		ShardingKey:    "user_id",
+		NumberOfShards: 128,
+		// 自定义传入
+		ShardingAlgorithm: RecommendResultShardingAlgorithm,
+		// 不需要用到推荐结果主键，使用雪花id即可
+		PrimaryKeyGenerator: sharding.PKSnowflake,
+	}, "recommend_result"))
+	assert.Nil(t, err)
+	err = db.Exec("select * from recommend_result where user_id = ?", "129").Error
+	assert.NotNil(t, err)
 }

@@ -3,6 +3,7 @@ package orm
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"strconv"
 )
 
@@ -16,6 +17,10 @@ func GetShardingTableIndex(userID string, totalTables int) int64 {
 	// 将十六进制字符串转换为整数
 	hashInt, _ := strconv.ParseInt(hashHex[:8], 16, 64) // 只取前8位来减少长度
 	// 取模运算，确定表名
-	tableIndex := hashInt % int64(totalTables)
+	tableIndex := hashInt & (int64(totalTables) - 1)
 	return tableIndex
+}
+
+func RecommendResultShardingAlgorithm(columnValue any) (string, error) {
+	return fmt.Sprintf("_%03d", GetShardingTableIndex(columnValue.(string), 128)), nil
 }

@@ -14,8 +14,8 @@ import (
 
 const (
 	address       = "localhost:8900" // gRPC 服务地址
-	concurrency   = 100              // 并发请求数
-	totalRequests = 10000            // 总请求数
+	concurrency   = 1000             // 并发请求数
+	totalRequests = 1000000          // 总请求数
 )
 
 func main() {

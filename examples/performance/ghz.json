@@ -1,0 +1,19 @@
+{
+  "proto": "E:\\project\\github\\go-lib-new\\go-lib\\examples\\performance\\feature\\feature.proto",
+  "call": "feature.FeatureServer.GetUserPublishedPaper",
+  "total": 2000,
+  "concurrency": 50,
+  "data": {
+    "userId": "test"
+  },
+  "metadata": {
+    "foo": "bar",
+    "trace_id": "{{.RequestNumber}}",
+    "timestamp": "{{.TimestampUnix}}"
+  },
+  "import-paths": [
+    "performance/feature"
+  ],
+  "max-duration": "10s",
+  "host": "localhost:8900"
+}

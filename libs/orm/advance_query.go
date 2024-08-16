@@ -6,8 +6,8 @@ import (
 	"github.com/beltran/gohive"
 	"golib/libs/orm/postgres_util"
 	"gorm.io/gorm"
-	"math/rand"
 	"strings"
+	"time"
 )
 
 type AdvanceQuery interface {
@@ -113,21 +113,21 @@ func (p *postgreQuery) getSelectFieldsString(selectFields []string) string {
 func (p *postgreQuery) QueryByCursor(tableName string, batchSize int, selectFields []string, where string, orderBy []string, fc func(data []map[string]interface{})) (map[string]interface{}, error) {
 	splitTableName := p.getTableName(tableName)
 	// 避免同个表名并发创建出相同的游标名
-	cursorName := fmt.Sprintf(`"%s_cursor_%d"`, splitTableName, rand.Intn(1000))
+	cursorName := fmt.Sprintf(`"%s_cursor_%d"`, splitTableName, time.Now().UnixNano())
 	tableName = p.wrapQuotesTableName(tableName)
-	p.db = p.db.Begin()
+	tx := p.db.Begin()
 	defer func() {
 		closeCursor := fmt.Sprintf("CLOSE %s", cursorName)
-		p.db = p.db.Exec(closeCursor)
-		p.db = p.db.Commit()
+		tx = tx.Exec(closeCursor)
+		tx = tx.Commit()
 	}()
 	selectFieldStr := p.getSelectFieldsString(selectFields)
 	orderByStr := p.getOrderByString(orderBy)
 
 	createCursor := fmt.Sprintf("DECLARE %s CURSOR FOR SELECT %s FROM %s %s %s", cursorName, selectFieldStr, tableName, where, orderByStr)
 
-	p.db = p.db.Exec(createCursor)
-	err := p.db.Error
+	tx = tx.Exec(createCursor)
+	err := tx.Error
 	if err != nil {
 		return nil, err
 	}
@@ -136,8 +136,8 @@ func (p *postgreQuery) QueryByCursor(tableName string, batchSize int, selectFiel
 	lastData := make(map[string]interface{})
 	for {
 		data := make([]map[string]interface{}, 0)
-		p.db = p.db.Raw(queryCursor).Scan(&data)
-		err := p.db.Error
+		tx = tx.Raw(queryCursor).Scan(&data)
+		err := tx.Error
 		if err != nil {
 			return nil, err
 		}
@@ -236,20 +236,57 @@ func (m *mysqlAdvanceQuery) wrapQuotesTableName(tableName string) string {
 }
 
 func (m *mysqlAdvanceQuery) QueryByCursor(tableName string, batchSize int, selectFields []string, where string, orderBy []string, fc func(data []map[string]interface{})) (map[string]interface{}, error) {
+	return m.QueryByRows(tableName, batchSize, selectFields, where, orderBy, fc)
+	//var (
+	//	queryTableSqlFormat = "SELECT %s FROM %s %s %s LIMIT %d OFFSET %d"
+	//	offset              = 0
+	//	selectFieldsString  = getSelectFieldsString(selectFields)
+	//	orderByString       = getOrderByString(orderBy)
+	//)
+	//lastData := make(map[string]interface{})
+	//for {
+	//	data := make([]map[string]interface{}, 0)
+	//	querySQL := fmt.Sprintf(queryTableSqlFormat, selectFieldsString, m.wrapQuotesTableName(tableName), where, orderByString, batchSize, offset)
+	//	m.db = m.db.Raw(querySQL).Scan(&data)
+	//	err := m.db.Error
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	if len(data) == 0 {
+	//		return lastData, nil
+	//	}
+	//	lastData = data[len(data)-1]
+	//	fc(data)
+	//	offset += len(data)
+	//}
+}
+
+func (m *mysqlAdvanceQuery) QueryByRows(tableName string, batchSize int, selectFields []string, where string, orderBy []string, fc func(data []map[string]interface{})) (map[string]interface{}, error) {
 	var (
-		queryTableSqlFormat = "SELECT %s FROM %s %s %s LIMIT %d OFFSET %d"
+		queryTableSqlFormat = "SELECT %s FROM %s %s %s"
 		offset              = 0
 		selectFieldsString  = getSelectFieldsString(selectFields)
 		orderByString       = getOrderByString(orderBy)
 	)
+	querySQL := fmt.Sprintf(queryTableSqlFormat, selectFieldsString, m.wrapQuotesTableName(tableName), where, orderByString)
+	rows, err := m.db.Raw(querySQL).Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 	lastData := make(map[string]interface{})
 	for {
-		data := make([]map[string]interface{}, 0)
-		querySQL := fmt.Sprintf(queryTableSqlFormat, selectFieldsString, m.wrapQuotesTableName(tableName), where, orderByString, batchSize, offset)
-		m.db = m.db.Raw(querySQL).Scan(&data)
-		err := m.db.Error
-		if err != nil {
-			return nil, err
+		data := make([]map[string]interface{}, 0, batchSize)
+		for rows.Next() {
+			item := make(map[string]interface{})
+			scanRowsErr := m.db.ScanRows(rows, &item)
+			if scanRowsErr != nil {
+				return nil, scanRowsErr
+			}
+			data = append(data, item)
+			if len(data) == batchSize {
+				break
+			}
 		}
 		if len(data) == 0 {
 			return lastData, nil

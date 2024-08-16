@@ -1,0 +1,232 @@
+syntax = "proto3";
+
+package feature;
+option go_package="./feature";
+
+message UserFeatureRequest {
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_version = 1;
+  string end_fetch_version = 2;
+  repeated string fields = 3;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 4;
+}
+
+message UserFeature {
+  string uid = 1;
+  string name = 2;
+  float weight = 3;
+  string age = 4;
+  string gender = 5;
+  string direction = 6;
+  repeated string topic = 7;
+  string birthday = 8;
+  string institution = 9;
+}
+
+message ArticleFeatureRequest {
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_version = 1;
+  string end_fetch_version = 2;
+  repeated string fields = 3;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 4;
+}
+
+message ArticleFeature {
+  string article_id = 1;
+  string title = 2;
+  string content = 3;
+  string category_level = 4;
+  repeated string tags = 5;
+  repeated string author = 6;
+  string impact_factor = 7;
+  string bhv_time = 8;
+  float weight = 9;
+  int32 age = 10;
+  int32 year = 11;
+  string issue = 12;
+  string volume = 13;
+  int32 indexed = 14;
+  string organization = 15;
+}
+
+message BehaviorFeatureRequest {
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_version = 1;
+  string end_fetch_version = 2;
+  repeated string fields = 3;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 4;
+}
+
+message BehaviorFeatureResponse {
+  string uid = 1;
+  string article_id = 2;
+  string bhv_time = 3;
+  float weight = 4;
+}
+
+message CooperatorFeatureRequest{
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_version = 1;
+  string end_fetch_version = 2;
+  repeated string fields = 3;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 4;
+}
+
+message CooperatorFeatureResponse{
+  string uid = 1;
+  string cid = 2;
+  int32 num = 3;
+}
+
+message PublishedPaperFeatureRequest{
+  // 上次获取特征的时间，如果不传则拉取全量特征数据
+  string last_fetch_version = 1;
+  string end_fetch_version = 2;
+  repeated string fields = 3;
+  // 是否打乱特征数据，如果为true则打乱，否则不打乱
+  bool shuffle = 4;
+}
+
+message PublishedPaperFeatureResponse{
+  string item_id = 1;
+  string status = 2;
+  string scene_id = 3;
+  string pub_time = 4;
+  string title = 5;
+  string weight = 6;
+  string category_level = 7;
+  string category_path = 8;
+  repeated string tags = 9;
+  repeated string author = 10;
+  string year = 11;
+  string volume = 12;
+  string issue = 13;
+  string indexed = 14;
+  string impact_factor = 15;
+  string content = 16;
+  string organization = 17;
+  string click_cnt = 18;
+  string like_cnt = 19;
+  string collect_cnt = 20;
+  string download_cnt = 21;
+  string uid = 22;
+}
+
+
+// 定义 PaperInfo 消息
+message PaperInfo {
+  string articleId = 1;
+  string title = 2;
+  string content = 3;
+  string categoryLevel = 4;
+  repeated string tags = 5;
+  repeated string author = 6;
+  string impactFactor = 7;
+  int64 bhvCnt = 8;
+  double weight = 9;
+  double age = 10;
+  int64 year = 11;
+  string issue = 12;
+  string volume = 13;
+  int64 indexed = 14;
+  string organization = 15;
+  string bhvTime = 16;
+  float bhvWeight = 17;
+}
+
+// 定义 GetUserPublishedPaper 请求消息
+message GetUserPublishedPaperRequest {
+  string userId = 1;
+}
+
+// 定义 GetUserPublishedPaper 响应消息
+message GetUserPublishedPaperResponse {
+  repeated PaperInfo paperInfos = 1; // 会根据用户发表的论文时间倒序排列
+  repeated string topic = 2; // 对应UserId的研究主题
+}
+
+// 定义 GetUserBehaviourPaper 请求消息
+message GetUserBehaviourPaperRequest {
+  string userId = 1;
+  int64 bhvTime = 2;
+  int64 minBhvCnt = 3;
+}
+
+// 定义 GetUserBehaviourPaper 响应消息
+message GetUserBehaviourPaperResponse {
+  repeated PaperInfo paperInfos = 1;
+}
+
+// 定义 GetUserCooperator 请求消息
+message GetUserCooperatorRequest {
+  string userId = 1;
+}
+
+message CooperatorInfo {
+  string cid = 1; // 合作学者id
+  float num = 2; // 合作次数
+  optional float weight = 3; // 用户表计算的权重
+  string name = 4;// 合作学者姓名
+}
+
+// 定义 GetUserCooperator 响应消息
+message GetUserCooperatorResponse {
+  string uid = 1;
+  repeated CooperatorInfo cooperatorInfos = 2;
+}
+
+// 定义 GetPopularPapers 请求消息
+message GetPopularPapersRequest {
+  int64 topK = 1;
+}
+
+// 定义 GetPopularPapers 响应消息
+message GetPopularPapersResponse {
+  repeated PaperInfo paperInfos = 1;
+}
+
+message GetTopicsAndTagsRequest{
+
+}
+
+message GetTopicsAndTagsResponse{
+  string topic = 1;
+}
+
+enum CacheType {
+  PopularArticles = 0;
+  UserPublishedPapers = 1;
+  UserBehaviourPapers = 2;
+}
+
+message RefreshCacheRequest{
+  // 要刷新的缓存
+  CacheType cache = 1;
+}
+
+message RefreshCacheResponse{
+}
+
+service FeatureServer {
+  // 这里是流式获取，会根据版本号来获取对应范围内的数据
+  rpc ListUserFeatures(UserFeatureRequest) returns(stream UserFeature) {};
+  rpc ListArticleFeatures(ArticleFeatureRequest) returns(stream ArticleFeature) {};
+  rpc ListBehaviorFeatures(BehaviorFeatureRequest) returns(stream BehaviorFeatureResponse) {};
+  rpc ListCooperatorFeatures(CooperatorFeatureRequest) returns(stream CooperatorFeatureResponse) {};
+  rpc ListPublishedPaperFeatures(PublishedPaperFeatureRequest) returns(stream PublishedPaperFeatureResponse) {};
+  rpc GetTopicsAndTags(GetTopicsAndTagsRequest) returns (stream GetTopicsAndTagsResponse){};
+
+  // 这里会获取符合条件的所有数据
+  rpc GetUserPublishedPaper(GetUserPublishedPaperRequest) returns (GetUserPublishedPaperResponse){};
+  rpc GetUserBehaviourPaper(GetUserBehaviourPaperRequest) returns (GetUserBehaviourPaperResponse){};
+  rpc GetUserCooperator(GetUserCooperatorRequest) returns (GetUserCooperatorResponse){};
+  rpc GetPopularPapers(GetPopularPapersRequest) returns (GetPopularPapersResponse){};
+
+
+  // 增量数据触发刷新缓存
+  rpc RefreshCache(RefreshCacheRequest) returns (RefreshCacheResponse){};
+}

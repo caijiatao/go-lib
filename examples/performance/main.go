@@ -39,7 +39,7 @@ func main() {
 		g.Go(func() error {
 			for j := 0; j < totalRequests/concurrency; j++ {
 				_, err := client.GetUserPublishedPaper(context.Background(), &feature.GetUserPublishedPaperRequest{
-					UserId: "test-scholar-topic-1-001",
+					UserId: "test",
 				})
 				if err != nil {
 					log.Printf("Request failed: %v", err)

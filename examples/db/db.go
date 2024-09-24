@@ -7,7 +7,7 @@ import (
 )
 
 func initDB() (*sql.DB, error) {
-	connStr := ""
+	connStr := "host=192.168.16.21 user=postgres password=123456 dbname=airec_server port=10432 sslmode=disable TimeZone=Asia/Shanghai"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open a DB connection: %v", err)

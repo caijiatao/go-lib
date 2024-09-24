@@ -1,6 +1,6 @@
 # hugo server --minify --themesDir ../.. --baseURL=http://0.0.0.0:1313/theme/hugo-book/
 
-baseURL = 'https://github.com/caijiatao/blog.github.io'
+baseURL = 'https://github.com/blog.github.io'
 title = '如何写好Go'
 theme = 'hugo-book'
 
@@ -79,7 +79,7 @@ enableGitInfo = true
   # Enable "Edit this page" links for 'doc' page type.
   # Disabled by default. Uncomment to enable. Requires 'BookRepo' param.
   # Edit path must point to root directory of repo.
-  BookEditPath = 'edit/main/exampleSite'
+#  BookEditPath = 'edit/main/exampleSite'
 
   # Configure the date format used on the pages
   # - In git information

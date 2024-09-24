@@ -1,7 +1,7 @@
 # hugo server --minify --themesDir ../.. --baseURL=http://0.0.0.0:1313/theme/hugo-book/
 
 baseURL = 'https://github.com/blog.github.io'
-title = '如何写好Go'
+title = '如何写好 Go'
 theme = 'hugo-book'
 
 # Book configuration
@@ -32,11 +32,17 @@ enableGitInfo = true
 #  weight = 2
 
 [menu]
+#[[menu.before]]
+#  name = "微信公众号"
+#  url = "wechat.png"
+#  weight = 10
+#[[menu.before]]
+#  name = "Github"
+#  url = "https://github.com/caijiatao/"
+#  weight = 20
 [[menu.before]]
-[[menu.after]]
-  name = "Github"
-  url = "https://github.com/caijiatao/"
-  weight = 10
+
+#[[menu.after]]
 
 [params]
   # (Optional, default light) Sets color theme: light, dark or auto.
@@ -110,3 +116,14 @@ enableGitInfo = true
   # /!\ This is an experimental feature, might be removed or changed at any time
   # (Optional, experimental, default false) Enables a drop-down menu for translations only if a translation is present.
   BookTranslatedOnly = false
+
+[params.page.comment]
+  enable = true
+  # giscus comment 评论系统设置 (https://giscus.app/zh-CN)
+  [params.page.comment.giscus]
+    # 你可以参考官方文档来使用下列配置
+    enable = true
+    repo = "caijiatao/blog.github.io"
+    repoId = "R_kgDOM2IMAQ"
+    category = "Announcements"
+    categoryId = "DIC_kwDOM2IMAc4Ciu8I"

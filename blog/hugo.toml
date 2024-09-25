@@ -127,3 +127,4 @@ enableGitInfo = true
     repoId = "R_kgDOM2IMAQ"
     category = "Announcements"
     categoryId = "DIC_kwDOM2IMAc4Ciu8I"
+    mapping = "pathname"

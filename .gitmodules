@@ -1,6 +1,0 @@
-[submodule "blog/themes/themes/hugo-book"]
-	path = blog/themes/themes/hugo-book
-	url = https://github.com/alex-shpak/hugo-book
-[submodule "blog/themes/hugo-book"]
-	path = blog/themes/hugo-book
-	url = https://github.com/alex-shpak/hugo-book

@@ -47,11 +47,6 @@ func CalculatePrice(user User, price float64) float64 {
 	return strategy.Calculate(price)
 }
 
-type fullDiscount struct {
-	targetPrice float64
-	discount    float64
-}
-
 func NormalCalculatePrice(user User, price float64) float64 {
 	// 8折
 	if user.CustomerType == VIP {

@@ -1,4 +1,4 @@
-package main
+package exception
 
 import (
 	"fmt"
@@ -28,16 +28,4 @@ func SortObjects[T any](items []T, compare Comparator[T]) {
 
 	// 打印排序耗时和内存使用变化
 	fmt.Printf("Sorting took %s, Memory increased by %d bytes\n", elapsed, endMemory-startMemory)
-}
-
-func main() {
-	users := []User{
-		//...
-	}
-
-	SortObjects(users, sortByName)
-
-	SortObjects(users, sortByTransactionNum)
-
-	SortObjects(users, sortByLastTransactionDate)
 }

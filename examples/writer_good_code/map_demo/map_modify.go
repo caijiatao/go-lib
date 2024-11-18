@@ -1,4 +1,4 @@
-package map_modify
+package map_demo
 
 import (
 	"sync"

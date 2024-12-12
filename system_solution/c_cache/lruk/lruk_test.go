@@ -53,3 +53,18 @@ func TestAdd(t *testing.T) {
 	assert.Falsef(t, ok, "value should not be found")
 	assert.Nil(t, value)
 }
+
+func TestRemove(t *testing.T) {
+	l, err := NewLRUK(3, 3)
+	assert.Nil(t, err)
+
+	l.Add(String("key1"), String("1234"))
+	value, ok := l.Get(String("key1"))
+	assert.Truef(t, ok, "value should be found")
+	assert.Equal(t, String("1234"), value)
+
+	l.Remove(String("key1"))
+	value, ok = l.Get(String("key1"))
+	assert.Falsef(t, ok, "value should not be found")
+	assert.Nil(t, value)
+}

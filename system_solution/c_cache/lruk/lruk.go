@@ -59,6 +59,8 @@ func (l *LRUK) Get(key Key) (value Value, ok bool) {
 		l.cache.Add(key, e)
 	}
 
+	value = e.value
+
 	return
 }
 

@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"c_cache/cli"
+	"c_cache/cli/cli"
 	"context"
 	"fmt"
 	"os"

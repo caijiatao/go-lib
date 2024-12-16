@@ -3,7 +3,10 @@ package server
 import (
 	"c_cache/consistent_hash"
 	"c_cache/lruk"
+	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"golib/libs/http_helper"
 	"golib/libs/naming"
 	"golib/libs/net_helper"
 	"net/http"
@@ -72,9 +75,9 @@ func (s *Server) registerRouter() {
 
 	s.engine.GET("/get/:key", s.get)
 
-	s.engine.DELETE("/del/:key", s.del)
+	s.engine.POST("/del/:key", s.del)
 
-	s.engine.PUT("/put/:key", s.put)
+	s.engine.POST("/put/:key", s.put)
 }
 
 func (s *Server) Run() error {
@@ -110,7 +113,7 @@ func (s *Server) get(c *gin.Context) {
 		return
 	}
 
-	resp, err := http.Get(node + "/get/" + key)
+	resp, err := http.Get(fmt.Sprintf("http://%s/%s/%s", node, "get", key))
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "internal error",
@@ -135,16 +138,22 @@ func (s *Server) del(c *gin.Context) {
 		return
 	}
 
-	resp, err := http.Post(node+"/del/"+key, "", nil)
+	resp, err := http.Post(fmt.Sprintf("http://%s/%s/%s", node, "del", key), "", nil)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "internal error",
 		})
 		return
 	}
-	c.JSON(200, gin.H{
-		"message": resp.Body,
-	})
+
+	res := gin.H{}
+	err = http_helper.HandleResponse(context.Background(), resp, res)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": "internal error",
+		})
+	}
+	c.JSON(resp.StatusCode, res)
 
 }
 
@@ -167,14 +176,20 @@ func (s *Server) put(c *gin.Context) {
 		return
 	}
 
-	resp, err := http.Post(node+"/put/"+key, "application/x-www-form-urlencoded", strings.NewReader("value="+value))
+	resp, err := http.Post(fmt.Sprintf("http://%s/%s/%s", node, "put", key), "application/x-www-form-urlencoded", strings.NewReader("value="+value))
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "internal error",
 		})
 		return
 	}
-	c.JSON(200, gin.H{
-		"message": resp.Body,
-	})
+
+	res := gin.H{}
+	err = http_helper.HandleResponse(context.Background(), resp, res)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": "internal error",
+		})
+	}
+	c.JSON(resp.StatusCode, res)
 }

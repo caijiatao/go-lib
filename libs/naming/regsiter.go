@@ -5,7 +5,6 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"golib/libs/etcd_helper"
 	"golib/libs/logger"
-	"log"
 	"time"
 )
 
@@ -19,7 +18,7 @@ type ServiceRegister struct {
 }
 
 // NewServiceRegister 新建注册服务
-func NewServiceRegister(endpoints []string, key, val string, lease int64) (*ServiceRegister, error) {
+func NewServiceRegister(endpoints []string, key, val string) *ServiceRegister {
 	err := etcd_helper.InitETCDClient(etcd_helper.Config{
 		ClientName: namingRegisterETCDClientKey,
 		Config: clientv3.Config{
@@ -28,7 +27,7 @@ func NewServiceRegister(endpoints []string, key, val string, lease int64) (*Serv
 		},
 	})
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	ser := &ServiceRegister{
@@ -36,12 +35,12 @@ func NewServiceRegister(endpoints []string, key, val string, lease int64) (*Serv
 		val: val,
 	}
 
-	//申请租约设置时间keepalive
-	if err := ser.putKeyWithLease(lease); err != nil {
-		return nil, err
+	//申请租约设置时间keepalive, 5s
+	if err := ser.putKeyWithLease(5); err != nil {
+		panic(err)
 	}
 
-	return ser, nil
+	return ser
 }
 
 // 设置租约

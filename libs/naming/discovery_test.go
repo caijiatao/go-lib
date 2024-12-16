@@ -1,7 +1,7 @@
 package naming
 
 import (
-	"log"
+	"fmt"
 	"testing"
 	"time"
 )
@@ -11,8 +11,9 @@ func TestDiscovery(t *testing.T) {
 	ser := NewServiceDiscovery(endpoints, "/api_server/")
 	for {
 		select {
-		case <-time.Tick(10 * time.Second):
-			log.Println(ser.GetServices())
+		case <-time.Tick(3 * time.Second):
+			fmt.Println(ser.GetServices())
+			fmt.Println(ser.GetServiceList())
 		}
 	}
 }

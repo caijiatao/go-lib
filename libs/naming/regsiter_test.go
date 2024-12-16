@@ -1,6 +1,7 @@
 package naming
 
 import (
+	"golib/libs/net_helper"
 	"log"
 	"testing"
 	"time"
@@ -8,14 +9,19 @@ import (
 
 func TestRegister(t *testing.T) {
 	var endpoints = []string{"localhost:2379"}
-	ser, err := NewServiceRegister(endpoints, "/api_server/", "localhost:8000", 5)
+	ipv4, err := net_helper.GetLocalIP()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	//ser, err := NewServiceRegister(endpoints, "/api_server/", ipv4, 5)
+	_ = NewServiceRegister(endpoints, "/api_server/", ipv4)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	//监听续租相应chan
-	go ser.ListenLeaseRespChan()
 	select {
-	case <-time.After(20 * time.Second):
-		ser.Close()
+	case <-time.After(time.Minute):
+
+		//ser.Close()
 	}
 }

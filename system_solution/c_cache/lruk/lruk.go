@@ -33,19 +33,45 @@ func (e *entry) IncrementAndCheckK(k int) bool {
 
 type LRUK struct {
 	cache *lru.Cache[Key, *entry]
-	k     int
-	size  int
+
+	config
 }
 
-func NewLRUK(size, k int) (*LRUK, error) {
-	baseCache, err := lru.New[Key, *entry](size)
+type config struct {
+	size int
+	k    int
+}
+
+type Opt func(*config)
+
+func WithK(k int) Opt {
+	return func(l *config) {
+		l.k = k
+	}
+}
+
+func WithSize(size int) Opt {
+	return func(l *config) {
+		l.size = size
+	}
+}
+
+func NewLRUK(opts ...Opt) (*LRUK, error) {
+	config := config{
+		size: 10000,
+		k:    3,
+	}
+	for _, opt := range opts {
+		opt(&config)
+	}
+
+	baseCache, err := lru.New[Key, *entry](config.size)
 	if err != nil {
 		return nil, err
 	}
 	return &LRUK{
-		cache: baseCache,
-		k:     k,
-		size:  size,
+		cache:  baseCache,
+		config: config,
 	}, nil
 }
 

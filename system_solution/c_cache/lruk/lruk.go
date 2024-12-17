@@ -3,7 +3,6 @@ package lruk
 import (
 	lru "github.com/hashicorp/golang-lru/v2"
 	"sync"
-	"time"
 )
 
 type Key interface {
@@ -15,9 +14,10 @@ type Value interface {
 }
 
 type entry struct {
-	value      Value
-	k          int
-	lastAccess time.Time
+	// 具体的值
+	value Value
+	// 访问次数
+	k int
 
 	mu sync.Mutex
 }
@@ -27,7 +27,6 @@ func (e *entry) IncrementAndCheckK(k int) bool {
 	defer e.mu.Unlock()
 
 	e.k++
-	e.lastAccess = time.Now()
 	return e.k >= k
 }
 
@@ -57,21 +56,21 @@ func WithSize(size int) Opt {
 }
 
 func NewLRUK(opts ...Opt) (*LRUK, error) {
-	config := config{
+	c := config{
 		size: 10000,
 		k:    3,
 	}
 	for _, opt := range opts {
-		opt(&config)
+		opt(&c)
 	}
 
-	baseCache, err := lru.New[Key, *entry](config.size)
+	baseCache, err := lru.New[Key, *entry](c.size)
 	if err != nil {
 		return nil, err
 	}
 	return &LRUK{
 		cache:  baseCache,
-		config: config,
+		config: c,
 	}, nil
 }
 
@@ -81,6 +80,7 @@ func (l *LRUK) Get(key Key) (value Value, ok bool) {
 		return
 	}
 
+	// 如果访问次数达到了k次，那么就将其放到队头，避免被淘汰
 	if e.IncrementAndCheckK(l.k) {
 		l.cache.Add(key, e)
 	}
@@ -94,8 +94,7 @@ func (l *LRUK) Add(key Key, value Value) {
 	l.cache.Add(
 		key,
 		&entry{
-			value:      value,
-			lastAccess: time.Now(),
+			value: value,
 		},
 	)
 }

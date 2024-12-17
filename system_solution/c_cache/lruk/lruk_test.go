@@ -12,7 +12,7 @@ func (d String) Len() int {
 }
 
 func TestGet(t *testing.T) {
-	l, err := NewLRUK(10, 3)
+	l, err := NewLRUK(WithSize(10), WithK(3))
 	assert.Nil(t, err)
 
 	value, ok := l.Get(String("key1"))
@@ -26,7 +26,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestAdd(t *testing.T) {
-	l, err := NewLRUK(3, 3)
+	l, err := NewLRUK(WithSize(3), WithK(3))
 	assert.Nil(t, err)
 
 	l.Add(String("key1"), String("1234"))
@@ -55,7 +55,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	l, err := NewLRUK(3, 3)
+	l, err := NewLRUK(WithSize(3), WithK(3))
 	assert.Nil(t, err)
 
 	l.Add(String("key1"), String("1234"))

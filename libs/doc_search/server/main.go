@@ -1,18 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"golib/libs/doc_search"
 	"log"
 	"net/http"
 )
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
 
 // ---- main ----
 
@@ -28,7 +21,7 @@ func main() {
 
 	mux.HandleFunc("/upsert", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
-			writeJSON(w, 405, map[string]any{"error": "method not allowed"})
+			doc_search.WriteJSON(w, 405, map[string]any{"error": "method not allowed"})
 			return
 		}
 		srv.UpsertHandler(w, r)
@@ -36,7 +29,7 @@ func main() {
 
 	mux.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
-			writeJSON(w, 405, map[string]any{"error": "method not allowed"})
+			doc_search.WriteJSON(w, 405, map[string]any{"error": "method not allowed"})
 			return
 		}
 		srv.SearchHandler(w, r)
@@ -44,7 +37,7 @@ func main() {
 
 	mux.HandleFunc("/delete/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodDelete {
-			writeJSON(w, 405, map[string]any{"error": "method not allowed"})
+			doc_search.WriteJSON(w, 405, map[string]any{"error": "method not allowed"})
 			return
 		}
 		srv.DeleteHandler(w, r)

@@ -111,7 +111,7 @@ func (m *IndexManager) CreateIndex(ctx context.Context, index string, mapping an
 	return nil
 }
 
-func BuildIKStopMapping(stopwords []string) map[string]any {
+func BuildIKStopMapping() map[string]any {
 	return map[string]any{
 		"settings": map[string]any{
 			"analysis": map[string]any{
@@ -125,7 +125,7 @@ func BuildIKStopMapping(stopwords []string) map[string]any {
 				"filter": map[string]any{
 					"my_stop_filter": map[string]any{
 						"type":      "stop",
-						"stopwords": stopwords,
+						"stopwords": CoreStopwords(),
 					},
 				},
 			},
@@ -196,7 +196,7 @@ func main() {
 	}
 	fmt.Println("成功连接到局域网 ES 服务！")
 
-	mapping := BuildIKStopMapping(CoreStopwords())
+	mapping := BuildIKStopMapping()
 	if err := EnsureIndex(ctx, mgr, cfg, mapping); err != nil {
 		panic(err)
 	}

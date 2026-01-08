@@ -38,6 +38,8 @@ type Config struct {
 	DefaultPageSize int
 
 	Port int
+
+	IsAsyncHandle string
 }
 
 func GetEnv(key, def string) string {
@@ -64,7 +66,7 @@ func LoadConfig() Config {
 	return Config{
 		TikaURL:     GetEnv("TIKA_URL", "http://192.168.12.49:9998/tika"),
 		ESHost:      GetEnv("ES_HOST", "http://192.168.12.49:9200"),
-		IndexName:   GetEnv("INDEX_NAME", "test_hikb2"),
+		IndexName:   GetEnv("INDEX_NAME", "test_hikb"),
 		CallbackURL: GetEnv("CALLBACK_URL", "http://192.168.12.49:8001"),
 
 		MaxWorkers: getenvInt("MAX_WORKERS", 4),
@@ -80,6 +82,8 @@ func LoadConfig() Config {
 		DefaultPageSize: getenvInt("DEFAULT_PAGE_SIZE", 20),
 
 		Port: getenvInt("FLASK_PORT", 10821),
+
+		IsAsyncHandle: GetEnv("IS_ASYNC_HANDLE", ""),
 	}
 }
 
@@ -500,7 +504,7 @@ func (s *Server) UpsertHandler(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 200<<20)
 
 	if err := r.ParseMultipartForm(200 << 20); err != nil {
-		writeJSON(w, 400, map[string]any{"error": "invalid multipart form"})
+		WriteJSON(w, 400, map[string]any{"error": "invalid multipart form"})
 		return
 	}
 
@@ -508,35 +512,43 @@ func (s *Server) UpsertHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	file, _, err := r.FormFile("file")
 	if docID == "" || title == "" || err != nil {
-		writeJSON(w, 400, map[string]any{"error": "Missing parameters"})
+		WriteJSON(w, 400, map[string]any{"error": "Missing parameters"})
 		return
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	b, err := io.ReadAll(file)
 	if err != nil {
-		writeJSON(w, 400, map[string]any{"error": "read file failed"})
+		WriteJSON(w, 400, map[string]any{"error": "read file failed"})
 		return
 	}
 
-	if !s.enqueue(Job{Type: JobUpsert, DocID: docID, Title: title, File: b}) {
-		writeJSON(w, 503, map[string]any{"error": "System queue is full"})
-		return
+	job := Job{Type: JobUpsert, DocID: docID, Title: title, File: b}
+	if len(s.cfg.IsAsyncHandle) != 0 && s.cfg.IsAsyncHandle == "true" {
+		if !s.enqueue(Job{Type: JobUpsert, DocID: docID, Title: title, File: b}) {
+			WriteJSON(w, 503, map[string]any{"error": "System queue is full"})
+			return
+		}
+	} else {
+		s.handleUpsertJob(job)
 	}
-	writeJSON(w, 202, map[string]any{"status": "accepted", "doc_id": docID})
+
+	WriteJSON(w, 202, map[string]any{"status": "accepted", "doc_id": docID})
 }
 
 func (s *Server) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	docID := strings.TrimPrefix(r.URL.Path, "/delete/")
 	if docID == "" {
-		writeJSON(w, 400, map[string]any{"error": "Missing doc_id"})
+		WriteJSON(w, 400, map[string]any{"error": "Missing doc_id"})
 		return
 	}
 	if !s.enqueue(Job{Type: JobDelete, DocID: docID}) {
-		writeJSON(w, 503, map[string]any{"error": "System busy"})
+		WriteJSON(w, 503, map[string]any{"error": "System busy"})
 		return
 	}
-	writeJSON(w, 202, map[string]any{"status": "accepted", "doc_id": docID})
+	WriteJSON(w, 202, map[string]any{"status": "accepted", "doc_id": docID})
 }
 
 func intFromQuery(r *http.Request, key string, def int) int {
@@ -549,6 +561,12 @@ func intFromQuery(r *http.Request, key string, def int) int {
 		return def
 	}
 	return i
+}
+
+func WriteJSON(w http.ResponseWriter, status int, v any) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(v)
 }
 
 // ✅ 补丁后的 search：collapse + inner_hits(best_chunk)，取每个 doc 的最强 chunk
@@ -579,7 +597,7 @@ func (s *Server) SearchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	from := (page - 1) * pageSize
 	if from > s.cfg.MaxFrom {
-		writeJSON(w, 400, map[string]any{"error": "Page limit exceeded"})
+		WriteJSON(w, 400, map[string]any{"error": "Page limit exceeded"})
 		return
 	}
 
@@ -648,19 +666,19 @@ func (s *Server) SearchHandler(w http.ResponseWriter, r *http.Request) {
 		s.es.Search.WithBody(bytes.NewReader(b)),
 	)
 	if err != nil {
-		writeJSON(w, 500, map[string]any{"error": "ES Error: " + err.Error()})
+		WriteJSON(w, 500, map[string]any{"error": "ES Error: " + err.Error()})
 		return
 	}
 	defer res.Body.Close()
 	if res.IsError() {
 		raw, _ := io.ReadAll(io.LimitReader(res.Body, 8<<10))
-		writeJSON(w, 500, map[string]any{"error": "ES Error: " + string(raw)})
+		WriteJSON(w, 500, map[string]any{"error": "ES Error: " + string(raw)})
 		return
 	}
 
 	var parsed map[string]any
 	if err := json.NewDecoder(res.Body).Decode(&parsed); err != nil {
-		writeJSON(w, 500, map[string]any{"error": "ES response decode error"})
+		WriteJSON(w, 500, map[string]any{"error": "ES response decode error"})
 		return
 	}
 
@@ -746,7 +764,7 @@ func (s *Server) SearchHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	writeJSON(w, 200, map[string]any{
+	WriteJSON(w, 200, map[string]any{
 		"total":       totalDocs,
 		"page":        page,
 		"page_size":   pageSize,

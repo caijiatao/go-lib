@@ -81,7 +81,7 @@ func LoadConfig() Config {
 		MaxFrom:         getenvInt("MAX_FROM", 9900),
 		DefaultPageSize: getenvInt("DEFAULT_PAGE_SIZE", 20),
 
-		Port: getenvInt("FLASK_PORT", 10821),
+		Port: getenvInt("FLASK_PORT", 8080),
 
 		IsAsyncHandle: GetEnv("IS_ASYNC_HANDLE", ""),
 	}
@@ -772,6 +772,60 @@ func (s *Server) SearchHandler(w http.ResponseWriter, r *http.Request) {
 		"items_count": len(items),
 		"items":       items,
 	})
+}
+
+/*
+*
+
+	reqBody := map[string]any{
+		"analyzer": "whitespace",
+		"text":     "2 running Quick brown-foxes leap over lazy dogs in the summer evening.",
+	}
+*/
+func (s *Server) Analyzer(reqBody map[string]any) {
+	b, err := json.Marshal(reqBody)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+
+	// 调用 GET /_analyze（client 会用 Indices.Analyze API）
+	resp, err := s.es.Indices.Analyze(
+		s.es.Indices.Analyze.WithBody(bytes.NewReader(b)),
+		s.es.Indices.Analyze.WithContext(ctx),
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	if resp.IsError() {
+		body, _ := io.ReadAll(resp.Body)
+		panic(fmt.Errorf("analyze failed: %s", string(body)))
+	}
+
+	// 解析返回 tokens
+	var out struct {
+		Tokens []struct {
+			Token       string `json:"token"`
+			StartOffset int    `json:"start_offset"`
+			EndOffset   int    `json:"end_offset"`
+			Type        string `json:"type"`
+			Position    int    `json:"position"`
+		} `json:"tokens"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		panic(err)
+	}
+
+	for i, t := range out.Tokens {
+		fmt.Printf("%2d) token=%q pos=%d [%d,%d] type=%s\n",
+			i+1, t.Token, t.Position, t.StartOffset, t.EndOffset, t.Type)
+	}
 }
 
 // ---- (可选) 如果你以后想发 multipart 请求，可用这个 helper，当前未使用 ----

@@ -544,10 +544,11 @@ func (s *Server) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		WriteJSON(w, 400, map[string]any{"error": "Missing doc_id"})
 		return
 	}
-	if !s.enqueue(Job{Type: JobDelete, DocID: docID}) {
-		WriteJSON(w, 503, map[string]any{"error": "System busy"})
-		return
-	}
+	s.handleDeleteJob(Job{Type: JobDelete, DocID: docID})
+	//if !s.enqueue(Job{Type: JobDelete, DocID: docID}) {
+	//	WriteJSON(w, 503, map[string]any{"error": "System busy"})
+	//	return
+	//}
 	WriteJSON(w, 202, map[string]any{"status": "accepted", "doc_id": docID})
 }
 
